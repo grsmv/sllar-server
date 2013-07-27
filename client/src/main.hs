@@ -13,6 +13,7 @@ main = do
                         "update"  -> p "update list of packages from Sllar repository"
                         "publish" -> p "send package to a Sllar repository"
                         "help"    -> p "help"
+                        "env"     -> p "show your current configuration"
                         "install" -> do package <- packageName args
                                         p $ "install package " ++ package
                         "show"    -> do package <- packageName args
