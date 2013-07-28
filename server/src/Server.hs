@@ -44,15 +44,29 @@ start = withSocketsDo $ do
     forever $ do
       (handle, _, _) <- accept sock
 
-      -- getting request details
-      request <- hGetContents handle
-      print $ parseRequest request
-
       forkIO $ do
-         hPutStr handle index
+         request <- hGetContents handle
+         hPutStr handle $ template (router (parseRequest request))
          hFlush handle
          hClose handle
 
+
+-- | Routing request to a specific content
+router :: Request -- ^ incoming request
+       -> String  -- ^ content for a specific route
+router request =
+    let Request r p = request in
+    case (r, p) of
+      (GET, "/")         -> "root"
+      (GET, "/packages") -> "packages"
+      _                  -> "root"
+
+
+-- | Wrapping content to a http request headers
+template :: String -- ^ content
+         -> String -- ^ final response
+template body =
+    "HTTP/1.0 200 OK\r\nContent-Length: " ++ show (length body) ++"\r\n\r\n" ++ body ++ "\r\n"
 
 {------------------------------------------------------------------------------
                                Server helpers
@@ -81,11 +95,3 @@ writePid = do
     pwd <- getCurrentDirectory
     let pidStr = show pid :: String
     writeFile (pwd ++ "/server.pid") pidStr
-
-
-{------------------------------------------------------------------------------
-                               Specific routes
-------------------------------------------------------------------------------}
-
-index :: String
-index = "HTTP/1.0 200 OK\r\nContent-Length: 6\r\n\r\nSllar!\r\n"
