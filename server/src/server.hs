@@ -19,7 +19,7 @@ start = withSocketsDo $ do
          sock <- listenOn $ PortNumber 5002
          forever $ do
            (handle, _, _) <- accept sock
-           parseRequest handle
+           {- parseRequest handle -}
            forkIO $ do
               hPutStr handle msg
               hFlush handle

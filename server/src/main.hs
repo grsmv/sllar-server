@@ -9,9 +9,10 @@ main = do
     args <- getArgs
     if null args then argFailure
                  else case head args of
-                        "server"   -> Server.start
+                        "start"    -> Server.start
                         "stop"     -> putStrLn "stop server"
                         "update"   -> putStrLn "update info"
+                        _          -> argFailure
 
 
 -- Raising exit with message if number of arguments is incorrect
