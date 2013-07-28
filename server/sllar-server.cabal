@@ -21,6 +21,7 @@ Executable sllar-server
     directory,
     hdaemonize,
     network,
+    process,
     tar,
     unix
 

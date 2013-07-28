@@ -10,7 +10,7 @@ main = do
     if null args then argFailure
                  else case head args of
                         "start"    -> Server.start
-                        "stop"     -> putStrLn "stop server"
+                        "stop"     -> Server.stop
                         "update"   -> putStrLn "update info"
                         _          -> argFailure
 

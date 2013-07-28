@@ -1,19 +1,15 @@
-module Server (start) where
+module Server ( start
+              , stop ) where
 
--- import System.Directory (removeFile)
--- import System.Exit
--- import System.Posix.Signals
--- import qualified Control.Exception as E
 import Control.Concurrent
 import Control.Monad (forever)
 import Network
 import Settings
 import System.IO
+import System.Process (system)
 import System.Posix.Process (getProcessID)
+import System.Posix.Daemonize (daemonize)
 
-{------------------------------------------------------------------------------
-                                    Server
-------------------------------------------------------------------------------}
 
 data Request     = Request { rtype :: RequestType , path :: String }
 data Response    = Response { body :: String , restype :: String }
@@ -22,24 +18,44 @@ data RequestType = GET | POST deriving Show
 instance Show Request where
     show r = "Request {" ++ show (rtype r) ++ " " ++ path r ++ "}"
 
+progName :: String
+progName = "sllar-server"
+
+{------------------------------------------------------------------------------
+                                Public API
+------------------------------------------------------------------------------}
 
 -- | Starting a web-server, receiving and routing requests
 start :: IO ()
-start = withSocketsDo $ do
-    let port = read (setting "port") :: Integer
-    sock <- listenOn $ PortNumber (fromInteger port)
+start =
+  daemonize $
+    withSocketsDo $ do
+      let port = read (setting "port") :: Integer
+      sock <- listenOn $ PortNumber (fromInteger port)
 
-    forkIO writePid
+      forkIO writePid
 
-    forever $ do
-      (handle, _, _) <- accept sock
+      forever $ do
+        (handle, _, _) <- accept sock
 
-      forkIO $ do
-         request <- hGetContents handle
-         hPutStr handle $ template (router (parseRequest request))
-         hFlush handle
-         hClose handle
+        forkIO $ do
+           request <- hGetContents handle
+           hPutStr handle $ template (router (parseRequest request))
+           hFlush handle
+           hClose handle
 
+
+-- | Killing sllar-server process by PID
+stop :: IO ()
+stop = do
+    pid <- readFile $ setting "tmp" ++ "/" ++ progName ++ ".pid"
+    system ("kill " ++ pid)
+    putStrLn $ progName ++ " was stopped"
+
+
+{------------------------------------------------------------------------------
+                                Request handling
+------------------------------------------------------------------------------}
 
 -- | Routing request to a specific content
 router :: Request -- ^ incoming request
@@ -63,9 +79,6 @@ template Response { body = b, restype = t } =
     "Content-Length: " ++ show (length b) ++ "\r\n\r\n" ++
     b ++ "\r\n"
 
-{------------------------------------------------------------------------------
-                                  Helpers
-------------------------------------------------------------------------------}
 
 -- | Parsing incoming request
 parseRequest :: String  -- ^ raw string with request headers
@@ -83,23 +96,14 @@ fromString t = case t of
                  "POST" -> POST
 
 
+{------------------------------------------------------------------------------
+                                  Helpers
+------------------------------------------------------------------------------}
+
 -- | Memoizing Process PID, recording it to a pid file
 writePid :: IO ()
 writePid = do
     pid <- getProcessID
-    let pidfile = setting "tmp" ++ "/sllar-server.pid"
+    let pidfile = setting "tmp" ++ "/" ++ progName ++ ".pid"
         pidStr = show pid :: String
     writeFile pidfile pidStr
-
-
--- registerTerminationHandlers :: IO ()
--- registerTerminationHandlers = do
---     installHandler sigINT (CatchOnce handleExit) Nothing
---     installHandler sigTERM (CatchOnce handleExit) Nothing
---     threadDelay 10000000
-
-
--- handleExit :: IO ()
--- handleExit = do
---     removeFile (setting "tmp" ++ "/sllar-server.pid")
---     exitWith (ExitFailure 1)
