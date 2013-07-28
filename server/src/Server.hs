@@ -62,13 +62,13 @@ stop = do
 router :: Request -- ^ incoming request
        -> IO Response  -- ^ content for a specific route
 router request = do
-    home <- readFile "/Users/sergey/Desktop/sllar/server/index.html"
+    index <- readFile $ setting "home" ++ "/html/index.html"
     let Request r p = request
         (h, j) = ("text/html", "application/json")
         (r', t) = case (r, p) of
-                    (GET, "/")         -> (home  ,                        h)
+                    (GET, "/")         -> (index,                         h)
                     (GET, "/packages") -> ("[{'name':'A'},{'name':'B'}]", j)
-                    _                  -> ("root",                        h)
+                    _                  -> (index,                         h)
     return (Response r' t)
 
 

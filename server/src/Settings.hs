@@ -7,7 +7,7 @@ data Setting = Setting { k :: String, v :: String } deriving Show
 settings :: [Setting]
 settings = [ Setting "port" "5002"
            , Setting "tmp"  "/tmp"
-           , Setting "home" "/etc/sllar" ]
+           , Setting "home" "/Users/sergey/Desktop/sllar/server" ]
 
 
 -- | Searching for a specific key through list of settings
