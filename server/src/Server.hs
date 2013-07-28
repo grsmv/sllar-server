@@ -58,7 +58,7 @@ router request =
     let Request r p = request in
     case (r, p) of
       (GET, "/")         -> "root"
-      (GET, "/packages") -> "packages"
+      (GET, "/packages") -> "<b>packages</b>"
       _                  -> "root"
 
 
@@ -66,7 +66,11 @@ router request =
 template :: String -- ^ content
          -> String -- ^ final response
 template body =
-    "HTTP/1.0 200 OK\r\nContent-Length: " ++ show (length body) ++"\r\n\r\n" ++ body ++ "\r\n"
+    "HTTP/1.0 200 OK\r\n" ++
+    "Content-type:text/html;charset=utf-8\r\n" ++
+    "Content-Length: " ++ show (length body) ++ "\r\n\r\n" ++
+    body ++
+    "\r\n"
 
 {------------------------------------------------------------------------------
                                Server helpers
