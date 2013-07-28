@@ -1,5 +1,6 @@
 module Server (start) where
 
+import Settings
 import Control.Concurrent
 import Control.Monad (forever)
 import Network
@@ -9,26 +10,8 @@ import System.Posix.Process (getProcessID)
 
 
 {------------------------------------------------------------------------------
-                                   Settings
-------------------------------------------------------------------------------}
-
-data Setting = Setting { k :: String, v :: String } deriving Show
-
-
-settings :: [Setting]
-settings = [ Setting "port" "5002"
-           , Setting "tmp"  "/Users/sergey/Desktop/" ]
-
-
--- | Searching for a specific key through list of settings
-settingValue :: String -- ^ key
-             -> String -- ^ value
-settingValue key = v . head $ filter (\s -> k s == key) settings
-
-{------------------------------------------------------------------------------
                                     Server
 ------------------------------------------------------------------------------}
-
 
 data RequestType = GET | POST deriving Show
 
@@ -42,9 +25,10 @@ instance Show Request where
     show r = "Request {" ++ show (rtype r) ++ " " ++ path r ++ "}"
 
 
+-- | Starting a web-server, receiving and routing requests
 start :: IO ()
 start = withSocketsDo $ do
-    let port = read (settingValue "port") :: Integer
+    let port = read (setting "port") :: Integer
     sock <- listenOn $ PortNumber (fromInteger port)
     forever $ do
       (handle, _, _) <- accept sock
@@ -79,7 +63,7 @@ template Response { body = b, restype = t } =
     b ++ "\r\n"
 
 {------------------------------------------------------------------------------
-                               Server helpers
+                                  Helpers
 ------------------------------------------------------------------------------}
 
 -- | Parsing incoming request
