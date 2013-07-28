@@ -31,7 +31,12 @@ settingValue key = v . head $ filter (\s -> k s == key) settings
 
 
 data RequestType = GET | POST deriving Show
-data Request = Request { rtype :: RequestType , path :: String }
+
+data Request = Request { rtype :: RequestType
+                       , path :: String }
+
+data Response = Response { body :: String
+                         , restype :: String }
 
 instance Show Request where
     show r = "Request {" ++ show (rtype r) ++ " " ++ path r ++ "}"
@@ -53,24 +58,25 @@ start = withSocketsDo $ do
 
 -- | Routing request to a specific content
 router :: Request -- ^ incoming request
-       -> String  -- ^ content for a specific route
+       -> Response  -- ^ content for a specific route
 router request =
-    let Request r p = request in
-    case (r, p) of
-      (GET, "/")         -> "root"
-      (GET, "/packages") -> "<b>packages</b>"
-      _                  -> "root"
+    Response r' t
+    where Request r p = request
+          (h, j) = ("text/html", "application/json")
+          (r', t) = case (r, p) of
+                      (GET, "/")         -> ("root",                        h)
+                      (GET, "/packages") -> ("[{'name':'A'},{'name':'B'}]", j)
+                      _                  -> ("root",                        h)
 
 
 -- | Wrapping content to a http request headers
-template :: String -- ^ content
-         -> String -- ^ final response
-template body =
+template :: Response -- ^ data for response
+         -> String   -- ^ final response
+template Response { body = b, restype = t } =
     "HTTP/1.0 200 OK\r\n" ++
-    "Content-type:text/html;charset=utf-8\r\n" ++
-    "Content-Length: " ++ show (length body) ++ "\r\n\r\n" ++
-    body ++
-    "\r\n"
+    "Content-type:" ++ t ++ ";charset=utf-8\r\n" ++
+    "Content-Length: " ++ show (length b) ++ "\r\n\r\n" ++
+    b ++ "\r\n"
 
 {------------------------------------------------------------------------------
                                Server helpers
