@@ -40,7 +40,8 @@ start =
 
         forkIO $ do
            request <- hGetContents handle
-           hPutStr handle $ template (router (parseRequest request))
+           response <- router (parseRequest request)
+           hPutStr handle $ template response
            hFlush handle
            hClose handle
 
@@ -59,15 +60,16 @@ stop = do
 
 -- | Routing request to a specific content
 router :: Request -- ^ incoming request
-       -> Response  -- ^ content for a specific route
-router request =
-    Response r' t
-    where Request r p = request
-          (h, j) = ("text/html", "application/json")
-          (r', t) = case (r, p) of
-                      (GET, "/")         -> ("root",                        h)
-                      (GET, "/packages") -> ("[{'name':'A'},{'name':'B'}]", j)
-                      _                  -> ("root",                        h)
+       -> IO Response  -- ^ content for a specific route
+router request = do
+    home <- readFile "/Users/sergey/Desktop/sllar/server/index.html"
+    let Request r p = request
+        (h, j) = ("text/html", "application/json")
+        (r', t) = case (r, p) of
+                    (GET, "/")         -> (home  ,                        h)
+                    (GET, "/packages") -> ("[{'name':'A'},{'name':'B'}]", j)
+                    _                  -> ("root",                        h)
+    return (Response r' t)
 
 
 -- | Wrapping content to a http request headers
