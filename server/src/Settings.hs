@@ -12,5 +12,5 @@ settings = [ Setting "port" "5002"
 
 -- | Searching for a specific key through list of settings
 setting :: String -- ^ key
-             -> String -- ^ value
+        -> String -- ^ value
 setting key = v . head $ filter (\s -> k s == key) settings

@@ -1,25 +1,23 @@
 module Server (start) where
 
-import Settings
+-- import System.Directory (removeFile)
+-- import System.Exit
+-- import System.Posix.Signals
+-- import qualified Control.Exception as E
 import Control.Concurrent
 import Control.Monad (forever)
 import Network
-import System.Directory (getCurrentDirectory)
+import Settings
 import System.IO
 import System.Posix.Process (getProcessID)
-
 
 {------------------------------------------------------------------------------
                                     Server
 ------------------------------------------------------------------------------}
 
+data Request     = Request { rtype :: RequestType , path :: String }
+data Response    = Response { body :: String , restype :: String }
 data RequestType = GET | POST deriving Show
-
-data Request = Request { rtype :: RequestType
-                       , path :: String }
-
-data Response = Response { body :: String
-                         , restype :: String }
 
 instance Show Request where
     show r = "Request {" ++ show (rtype r) ++ " " ++ path r ++ "}"
@@ -30,6 +28,9 @@ start :: IO ()
 start = withSocketsDo $ do
     let port = read (setting "port") :: Integer
     sock <- listenOn $ PortNumber (fromInteger port)
+
+    forkIO writePid
+
     forever $ do
       (handle, _, _) <- accept sock
 
@@ -86,6 +87,19 @@ fromString t = case t of
 writePid :: IO ()
 writePid = do
     pid <- getProcessID
-    pwd <- getCurrentDirectory
-    let pidStr = show pid :: String
-    writeFile (pwd ++ "/server.pid") pidStr
+    let pidfile = setting "tmp" ++ "/sllar-server.pid"
+        pidStr = show pid :: String
+    writeFile pidfile pidStr
+
+
+-- registerTerminationHandlers :: IO ()
+-- registerTerminationHandlers = do
+--     installHandler sigINT (CatchOnce handleExit) Nothing
+--     installHandler sigTERM (CatchOnce handleExit) Nothing
+--     threadDelay 10000000
+
+
+-- handleExit :: IO ()
+-- handleExit = do
+--     removeFile (setting "tmp" ++ "/sllar-server.pid")
+--     exitWith (ExitFailure 1)

@@ -28,4 +28,4 @@ Executable sllar-server
     CC-Options:   "-DDEBUG"
     GHC-Options:  "-DDEBUG"
 
-  ghc-options:    -Wall -fwarn-tabs
+  ghc-options:    -Wall -fwarn-tabs -threaded
