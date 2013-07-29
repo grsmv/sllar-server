@@ -17,6 +17,7 @@ Executable sllar
   hs-source-dirs: src
 
   Build-depends:
+    aeson,
     base,
     tar
 
