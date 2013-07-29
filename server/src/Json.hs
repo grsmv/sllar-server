@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Json where
+module Json (jsonRead, jsonWrite) where
 
 import Control.Applicative ((<$>), (<*>), empty)
 import Data.Aeson
@@ -56,20 +56,13 @@ instance FromJSON Version where
     parseJSON _          = empty
 
 
-jsonRead :: String -> Maybe [Package]
+-- | Processing raw string with JSON into parsed data
+jsonRead :: String          -- ^ string presentation of json
+         -> Maybe [Package] -- ^ parsed output
 jsonRead s = decode (BL.pack s) :: Maybe [Package]
 
-jsonWrite :: [Package] -> BL.ByteString
+
+-- | Processing values of Package type into JSON
+jsonWrite :: [Package]     -- ^ list of packages
+          -> BL.ByteString -- ^ json output
 jsonWrite = encode
-
-
-main :: IO ()
-main = do
-    -- s <- readFile "packages.json"
-    -- let req = jsonRead s
-    -- print req
-
-    let reply = [
-          Package "sexp" "another ose S-expr parser" "me" "Me" "MIT" "(c)" "http://github.com" "bugzilla" [Version "0.1" "12 Jun 2012"],
-          Package "chlmrs" "Chalmers" "" "" "CHL" "" "" "Jira" [Version "0.1" "12 Jun 2012", Version "0.2" "09 Aug 2012"] ]
-    BL.putStrLn (jsonWrite reply)
