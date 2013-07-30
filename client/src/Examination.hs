@@ -1,7 +1,7 @@
-module Examinations ( checkDirectory
-                    , checkFile
-                    , checkEnv
-                    ) where
+module Examination ( checkDirectory
+                   , checkFile
+                   , checkEnv
+                   ) where
 
   import System.Directory
   import System.Environment
