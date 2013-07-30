@@ -19,10 +19,11 @@ Executable sllar
   Build-depends:
     aeson,
     base,
+    directory,
     tar
 
   if flag(debug)
     CC-Options:   "-DDEBUG"
     GHC-Options:  "-DDEBUG"
 
-  ghc-options:    -Wall -fwarn-tabs
+  ghc-options:    -Wall -fwarn-tabs -threaded -O
