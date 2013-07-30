@@ -13,6 +13,7 @@ main = do
         p "Specify argument"
         exitFailure
       else case head args of
+             "setup"   -> p "setup your environment"
              "list"    -> p "list of packages"
              "update"  -> p "update list of packages from Sllar repository"
              "publish" -> p "send package to a Sllar repository"

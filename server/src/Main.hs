@@ -9,6 +9,7 @@ main = do
     args <- getArgs
     if null args then argFailure
                  else case head args of
+                        "setup"    -> putStrLn "setup your environment"
                         "start"    -> Server.start
                         "stop"     -> Server.stop
                         "update"   -> putStrLn "update info"
