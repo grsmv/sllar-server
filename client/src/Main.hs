@@ -27,8 +27,12 @@ main =
                       "create"  -> withName $ p ("create a skeleton of a package with name " ++ args !! 1)
                       _         -> p "help"
 
--- | Wrapper around actions with package name.
+--
+-- Wrapper around actions with package name.
 -- Stops application execution if package name not given
+-- Input: function to wrap
+-- Output: funtion wrapped by package name existence verification
+--
 withName :: IO a -> IO a
 withName action =
     onException action

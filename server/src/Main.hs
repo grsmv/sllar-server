@@ -1,6 +1,7 @@
 module Main where
 
 import qualified Server
+import Common
 import System.Environment (getArgs)
 import System.Exit (exitFailure)
 
@@ -16,8 +17,8 @@ main = do
                         _          -> argFailure
 
 
+--
 -- Raising exit with message if number of arguments is incorrect
+--
 argFailure :: IO ()
-argFailure = do
-    putStrLn "Specify argument"
-    exitFailure
+argFailure = failDown "No arguments specified"

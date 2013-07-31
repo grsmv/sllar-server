@@ -25,7 +25,9 @@ progName = "sllar-server"
                                 Public API
 ------------------------------------------------------------------------------}
 
--- | Starting a web-server, receiving and routing requests
+--
+-- Starting a web-server, receiving and routing requests
+--
 start :: IO ()
 start =
   daemonize $
@@ -46,7 +48,9 @@ start =
            hClose handle
 
 
--- | Killing sllar-server process by PID
+--
+-- Killing sllar-server process by PID
+--
 stop :: IO ()
 stop = do
     pid <- readFile $ setting "tmp" ++ "/" ++ progName ++ ".pid"
@@ -58,9 +62,12 @@ stop = do
                                 Request handling
 ------------------------------------------------------------------------------}
 
--- | Routing request to a specific content
-router :: Request -- ^ incoming request
-       -> IO Response  -- ^ content for a specific route
+--
+-- Routing request to a specific content
+-- Input: incoming request
+-- Output: content for a specific route
+--
+router :: Request -> IO Response
 router request = do
     index <- readFile $ setting "home" ++ "/resources/html/index.html"
     let Request r p = request
@@ -72,9 +79,12 @@ router request = do
     return (Response r' t)
 
 
--- | Wrapping content to a http request headers
-template :: Response -- ^ data for response
-         -> String   -- ^ final response
+--
+-- Wrapping content to a http request headers
+-- Input: data for response
+-- Output: final response
+--
+template :: Response -> String
 template Response { body = b, restype = t } =
     "HTTP/1.0 200 OK\r\n" ++
     "Content-type:" ++ t ++ ";charset=utf-8\r\n" ++
@@ -82,17 +92,23 @@ template Response { body = b, restype = t } =
     b ++ "\r\n"
 
 
--- | Parsing incoming request
-parseRequest :: String  -- ^ raw string with request headers
-             -> Request -- ^ parsed request details
+--
+-- Parsing incoming request
+-- Input: raw string with request headers
+-- Output: parsed request details
+--
+parseRequest :: String -> Request
 parseRequest requestHeaders =
     case words (head (lines requestHeaders)) of
       [t, p, _] -> Request { rtype=fromString t, path=p }
 
 
--- | Converting string presentation of request type into specific type
-fromString :: String      -- ^ string presentation of request type
-           -> RequestType -- ^ value of a specific type
+--
+-- Converting string presentation of request type into specific type
+-- Input: string presentation of request type
+-- Output: value of a specific type
+--
+fromString :: String -> RequestType
 fromString t = case t of
                  "GET" -> GET
                  "POST" -> POST
@@ -102,7 +118,9 @@ fromString t = case t of
                                   Helpers
 ------------------------------------------------------------------------------}
 
--- | Memoizing Process PID, recording it to a pid file
+--
+-- Memoizing Process PID, recording it to a pid file
+--
 writePid :: IO ()
 writePid = do
     pid <- getProcessID

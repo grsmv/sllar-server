@@ -56,13 +56,19 @@ instance FromJSON Version where
     parseJSON _          = empty
 
 
--- | Processing raw string with JSON into parsed data
-jsonRead :: String          -- ^ string presentation of json
-         -> Maybe [Package] -- ^ parsed output
+--
+-- Processing raw string with JSON into parsed data
+-- Input: string presentation of json
+-- Output: parsed output
+--
+jsonRead :: String -> Maybe [Package]
 jsonRead s = decode (BL.pack s) :: Maybe [Package]
 
 
--- | Processing values of Package type into JSON
-jsonWrite :: [Package]     -- ^ list of packages
-          -> BL.ByteString -- ^ json output
+--
+-- Processing values of Package type into JSON
+-- Input: list of packages
+-- Output: json output
+--
+jsonWrite :: [Package] -> BL.ByteString
 jsonWrite = encode
