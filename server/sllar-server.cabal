@@ -7,6 +7,7 @@ Homepage:         https://github.com/grsmv/sllar
 License:          MIT
 Build-type:       Simple
 Cabal-version:    >=1.8
+data-dir:       resources
 
 Flag Debug
   Description:    Enable debug support
@@ -15,6 +16,7 @@ Flag Debug
 Executable sllar-server
   Main-is:        Main.hs
   hs-source-dirs: src
+  other-modules:  Paths_sllar_server
 
   Build-depends:
     aeson,
