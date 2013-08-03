@@ -1,22 +1,24 @@
-Name:             sllar-server
-Version:          0.0.0.1
-Author:           Serge Gerasimov
-Maintainer:       mail@grsmv.com
-Description:      Package system for SeqeunceL programming language. Server
-Homepage:         https://github.com/grsmv/sllar
-License:          MIT
-Build-type:       Simple
-Cabal-version:    >=1.8
-data-dir:       resources
+name:               sllar-server
+version:            0.0.0.1
+author:             Serge Gerasimov
+maintainer:         mail@grsmv.com
+description:        Package system for SeqeunceL programming language. Server
+category:           Utilities
+synopsis:           Package system for SeqeunceL programming language. Server
+homepage:           https://github.com/grsmv/sllar
+license:            MIT
+license-file:       LICENSE
+build-type:         Simple
+cabal-version:      >=1.8
 
-Flag Debug
-  Description:    Enable debug support
-  Default:        False
+data-dir:           resources
+data-files:         html/*.html packages/.keep
+extra-source-files: src/*.hs
 
 Executable sllar-server
-  Main-is:        Main.hs
-  hs-source-dirs: src
-  other-modules:  Paths_sllar_server
+  main-is:          Main.hs
+  hs-source-dirs:   src
+  other-modules:    Paths_sllar_server
 
   Build-depends:
     aeson,
@@ -28,8 +30,4 @@ Executable sllar-server
     tar,
     unix
 
-  if flag(debug)
-    CC-Options:   "-DDEBUG"
-    GHC-Options:  "-DDEBUG"
-
-  ghc-options:    -Wall -fwarn-tabs -threaded
+  ghc-options:      -Wall -fwarn-tabs -threaded

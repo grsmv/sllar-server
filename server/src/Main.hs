@@ -3,6 +3,7 @@ module Main where
 import qualified Server
 import Common
 import System.Environment (getArgs)
+import Paths_sllar_server
 
 main :: IO ()
 main = do
@@ -13,6 +14,8 @@ main = do
         "start"    -> Server.start
         "stop"     -> Server.stop
         "update"   -> putStrLn "update info"
+        "path"     -> do path <- getDataFileName "resources/html/index.html"
+                         putStrLn path
         _          -> argFailure
 
 
