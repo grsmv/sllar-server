@@ -14,7 +14,7 @@ main = do
         "start"    -> Server.start
         "stop"     -> Server.stop
         "update"   -> putStrLn "update info"
-        "path"     -> do path <- getDataFileName "resources/html/index.html"
+        "path"     -> do path <- getDataFileName "resources/packages/"
                          putStrLn path
         _          -> argFailure
 
