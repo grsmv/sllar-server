@@ -12,7 +12,8 @@ import System.Console.ANSI
 -- Input: message to show before death
 --
 failDown :: String -> IO ()
-failDown s = do putStrLn ("Error: " ++ s)
+failDown s = do red "Error: "
+                putStrLn s
                 exitFailure
 
 
