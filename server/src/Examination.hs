@@ -29,20 +29,12 @@ genericCheck checker path = do
 
 
 --
--- Checking presence and permissions for specified directory
+-- Checking presence and permissions for specified path (directory or file)
 -- Input: path to directory
 -- Output: boolean result
 --
-checkDirectory :: String -> IO Bool
+checkDirectory, checkFile :: String -> IO Bool
 checkDirectory = genericCheck doesDirectoryExist
-
-
---
--- Checking presence and permissions for specified file
--- Input: path to directory
--- Output: boolean result
---
-checkFile :: String -> IO Bool
 checkFile = genericCheck doesFileExist
 
 
