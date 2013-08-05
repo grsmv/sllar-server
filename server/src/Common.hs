@@ -19,11 +19,11 @@ failDown s = do red "Error: "
 
 --
 -- Generic color-printing helper
--- Input: text to colorize, Color to colorize in
+-- Input: Color to colorize in, text to colorize
 -- Output: IO action
 --
-color :: String -> Color -> IO ()
-color msg color' = do
+color :: Color -> String -> IO ()
+color color' msg = do
     setSGR [ SetConsoleIntensity BoldIntensity
            , SetColor Foreground Vivid color' ]
     putStr msg
@@ -36,6 +36,6 @@ color msg color' = do
 -- Output: IO action
 --
 red, green, yellow :: String -> IO ()
-red msg = color msg Red
-green msg = color msg Green
-yellow msg = color msg Yellow
+red = color Red
+green = color Green
+yellow = color Yellow
