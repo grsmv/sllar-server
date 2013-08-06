@@ -3,9 +3,7 @@ version:            0.0.0.1
 author:             Serge Gerasimov
 maintainer:         Serge Gerasimov <mail@grsmv.com>
 synopsis:           Package system for SeqeunceL programming language. Server
-description:        Cabal-like package system for SeqeunceL programming
-language. Client component. It allows to install, create and upload
-SequenceL packages (libraries).
+description:        Cabal-like package system for SeqeunceL programming language. Client component. It allows to install, create and upload SequenceL packages (libraries).
 category:           Utilities
 homepage:           https://github.com/grsmv/sllar
 license:            MIT
