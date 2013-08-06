@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module ConfigReader (repos) where
+module Config (repos) where
 
 import Data.Yaml
 import GHC.Generics
