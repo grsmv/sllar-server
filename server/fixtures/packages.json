@@ -1,0 +1,25 @@
+[
+  {
+    "name":            "lispparser",
+    "description":     "A simple parser for LISP S-expressions, using Parsec.",
+    "copyright":       "",
+    "license":         "BSD3",
+    "author":          "Jerome K Jerome",
+    "maintainer":      "Stephen Sigal",
+    "homepage":        "",
+    "tracker":         "Bugzilla",
+    "versions":        [{"version": "1.2", "date": "12 Dec 2001"}]
+  },
+  {
+    "name":            "sexp",
+    "description":     "S-Expression parser",
+    "author":          "Jerome K Jerome Junior",
+    "copyright":       "",
+    "license":         "MIT",
+    "maintainer":      "Stephen Sigal",
+    "homepage":        "",
+    "tracker":         "Jura",
+    "versions":        [{"version": "1.2", "date": "12 Dec 2001"}]
+  }
+]
+
