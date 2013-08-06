@@ -30,6 +30,7 @@ Executable sllar-server
     hdaemonize,
     network,
     process,
+    regex-posix,
     tar,
     unix,
     yaml
