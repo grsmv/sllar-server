@@ -24,7 +24,9 @@ Executable sllar
     aeson,
     ansi-terminal,
     base,
+    bytestring,
     directory,
+    ghc-prim,
     split,
     tar,
     yaml

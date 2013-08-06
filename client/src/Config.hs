@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Config (repos) where
+module Config where
 
 import Data.Yaml
 import GHC.Generics
@@ -16,8 +16,8 @@ instance FromJSON Repositories
 -- Output: list of urls to repositories
 --
 repos :: IO (Maybe [String])
-repos = do rawData <- readFile "example.yaml"
-           let repos' = decode (BS.pack rawData) :: Maybe Repositories
+repos = do rawText <- readFile "example.yaml"
+           let repos' = decode (BS.pack rawText) :: Maybe Repositories
            return $ case repos' of
-             Just crds -> Just $ repositories crds
-             _         -> Nothing
+                      Just crds -> Just $ repositories crds
+                      _         -> Nothing

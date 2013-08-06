@@ -2,7 +2,7 @@ module Server ( start
               , stop ) where
 
 -- Sllar
-import Settings
+import Config
 import Paths_sllar_server
 
 -- System
@@ -16,8 +16,8 @@ import System.Posix.Process (getProcessID)
 import System.Posix.Daemonize (daemonize)
 
 
-data Request     = Request { rtype :: RequestType , path :: String }
-data Response    = Response { body :: String , restype :: String }
+data Request     = Request { rtype :: RequestType, path :: String }
+data Response    = Response { body :: String, restype :: String }
 data RequestType = GET | POST deriving Show
 
 instance Show Request where
@@ -34,8 +34,14 @@ start :: IO ()
 start =
   daemonize $
     withSocketsDo $ do
-      let port = read (setting "port") :: Integer
-      sock <- listenOn $ PortNumber (fromInteger port)
+
+      -- getting data from server's config
+      config' <- config
+      let port' = case config' of
+                    Just cfg -> port cfg
+                    _        -> 5002
+
+      sock <- listenOn $ PortNumber (fromInteger port')
 
       forkIO writePid
 
