@@ -4,6 +4,7 @@ module Main where
 import Examination (checkEnv)
 import Common
 import qualified Package
+import qualified PackageList
 
 -- System
 import Control.Exception (onException)
@@ -19,14 +20,14 @@ main =
           withArgs args $
             do let p = putStrLn
                case head args of
-                 "list"    -> p "list of packages"
-                 "update"  -> p "update list of packages from Sllar repository"
-                 "publish" -> p "send package to a Sllar repository"
+                 "install" -> withName $ Package.install (drop 1 args)
+                 "show"    -> withName $ Package.show (args !! 1)
+                 "create"  -> withName $ Package.create (args !! 1)
+                 "publish" -> withName $ Package.publish (drop 1 args)
+                 "list"    -> PackageList.show'
+                 "update"  -> PackageList.update
                  "env"     -> p "show your current configuration"
                  "help"    -> p "help"
-                 "install" -> withName $ Package.install (drop 1 args)
-                 "show"    -> withName $ p ("show information about package " ++ args !! 1)
-                 "create"  -> withName $ p ("create a skeleton of a package with name " ++ args !! 1)
                  _         -> p "help"
 
 --
