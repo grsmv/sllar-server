@@ -1,9 +1,12 @@
 module Main where
 
+-- Sllar
 import qualified Server
 import Common
-import System.Environment (getArgs)
 import Paths_sllar_server
+
+-- System
+import System.Environment (getArgs)
 
 main :: IO ()
 main = do

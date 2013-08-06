@@ -1,10 +1,15 @@
 module Server ( start
               , stop ) where
 
+-- Sllar
+import Settings
+import Paths_sllar_server
+
+-- System
 import Control.Concurrent
 import Control.Monad (forever)
 import Network
-import Settings
+import System.Directory (removeFile)
 import System.IO
 import System.Process (system)
 import System.Posix.Process (getProcessID)
@@ -17,9 +22,6 @@ data RequestType = GET | POST deriving Show
 
 instance Show Request where
     show r = "Request {" ++ show (rtype r) ++ " " ++ path r ++ "}"
-
-progName :: String
-progName = "sllar-server"
 
 {------------------------------------------------------------------------------
                                 Public API
@@ -53,9 +55,12 @@ start =
 --
 stop :: IO ()
 stop = do
-    pid <- readFile $ setting "tmp" ++ "/" ++ progName ++ ".pid"
-    system ("kill " ++ pid)
-    putStrLn $ progName ++ " was stopped"
+    tmpFolder <- getDataFileName "tmp/"
+    let tmpFilePath = tmpFolder ++ "sllar-server.pid"
+    pid <- readFile tmpFilePath
+    system $ "kill " ++ pid
+    removeFile tmpFilePath
+    putStrLn "sllar-server was stopped"
 
 
 {------------------------------------------------------------------------------
@@ -69,7 +74,8 @@ stop = do
 --
 router :: Request -> IO Response
 router request = do
-    index <- readFile $ setting "home" ++ "/resources/html/index.html"
+    indexTemplatePath <- getDataFileName "html/index.html"
+    index <- readFile indexTemplatePath
     let Request r p = request
         (h, j) = ("text/html", "application/json")
         (r', t) = case (r, p) of
@@ -124,6 +130,7 @@ fromString t = case t of
 writePid :: IO ()
 writePid = do
     pid <- getProcessID
-    let pidfile = setting "tmp" ++ "/" ++ progName ++ ".pid"
+    tmpFolder <- getDataFileName "tmp/"
+    let pidfile = tmpFolder ++ "sllar-server.pid"
         pidStr = show pid :: String
     writeFile pidfile pidStr
