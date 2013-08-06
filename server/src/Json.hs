@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Json (jsonRead, jsonWrite) where
+module Json (fromJSON, toJSON) where
 
 import Control.Applicative ((<$>), (<*>), empty)
 import Data.Aeson
@@ -35,8 +35,8 @@ instance FromJSON Version
 -- Input: string presentation of json
 -- Output: parsed output
 --
-jsonRead :: String -> Maybe [Package]
-jsonRead s = decode (BL.pack s) :: Maybe [Package]
+fromJSON :: String -> Maybe [Package]
+fromJSON s = decode (BL.pack s) :: Maybe [Package]
 
 
 --
@@ -44,5 +44,5 @@ jsonRead s = decode (BL.pack s) :: Maybe [Package]
 -- Input: list of packages
 -- Output: json output
 --
-jsonWrite :: [Package] -> BL.ByteString
-jsonWrite = encode
+toJSON :: [Package] -> BL.ByteString
+toJSON = encode
