@@ -1,7 +1,7 @@
 name:               sllar-server
 version:            0.0.0.1
 author:             Serge Gerasimov
-maintainer:         mail@grsmv.com
+maintainer:         Serge Gerasimov <mail@grsmv.com>
 synopsis:           Package system for SeqeunceL programming language. Server
 description:        Cabal-like package system for SeqeunceL programming language. Server component. It allows to create and maintain package repositories.
 category:           Utilities

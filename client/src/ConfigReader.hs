@@ -1,26 +1,23 @@
-module ConfigReader (search, parse) where
+{-# LANGUAGE DeriveGeneric #-}
 
-import Data.List.Split
-import qualified Data.Text as T
+module ConfigReader (repos) where
 
---
--- Searching among list of config key-value pairs
---
-search :: String -> [(String, String)] -> Maybe String
-search key values =
-    let result = filter (\(k, _) -> key == k) values in
-    case length result of
-      0 -> Nothing
-      _ -> Just (snd $ head result)
+import Data.Yaml
+import GHC.Generics
+import qualified Data.ByteString.Char8 as BS
 
+data Repositories = Repositories { repositories :: [String] }
+                    deriving (Show, Generic)
+
+instance FromJSON Repositories
 
 --
--- Reading YAML-like config and processing a list of key-value pairs
--- Input: raw string
--- Output: list of key-value pairs
+-- Returning a list of repositories to get data from
+-- Output: list of urls to repositories
 --
-parse :: String -> [(String, String)]
-parse str =
-    map (\l -> (strp (head (spl l)), strp (last $ spl l))) $ lines str
-    where strp n = T.unpack . T.strip $ T.pack n
-          spl = splitOn ":"
+repos :: IO (Maybe [String])
+repos = do rawData <- readFile "example.yaml"
+           let repos' = decode (BS.pack rawData) :: Maybe Repositories
+           return $ case repos' of
+             Just crds -> Just $ repositories crds
+             _         -> Nothing

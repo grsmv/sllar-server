@@ -1,30 +1,34 @@
-Name:             sllar-client
-Version:          0.0.0.1
-Author:           Serge Gerasimov
-Maintainer:       mail@grsmv.com
-Description:      Package system for SeqeunceL programming language. Client
-Homepage:         https://github.com/grsmv/sllar
-License:          MIT
-Build-type:       Simple
-Cabal-version:    >=1.8
+name:               sllar-client
+version:            0.0.0.1
+author:             Serge Gerasimov
+maintainer:         Serge Gerasimov <mail@grsmv.com>
+synopsis:           Package system for SeqeunceL programming language. Server
+description:        Cabal-like package system for SeqeunceL programming
+language. Client component. It allows to install, create and upload
+SequenceL packages (libraries).
+category:           Utilities
+homepage:           https://github.com/grsmv/sllar
+license:            MIT
+license-file:       LICENSE
+build-type:         Simple
+cabal-version:      >=1.8
 
-Flag Debug
-  Description:    Enable debug support
-  Default:        False
+data-dir:           resources
+data-files:         sllarrc
+extra-source-files: src/*.hs
 
 Executable sllar
-  Main-is:        Main.hs
-  hs-source-dirs: src
+  Main-is:          Main.hs
+  hs-source-dirs:   src
+  other-modules:    Paths_sllar_client
 
   Build-depends:
     aeson,
+    ansi-terminal,
     base,
     directory,
     split,
-    tar
+    tar,
+    yaml
 
-  if flag(debug)
-    CC-Options:   "-DDEBUG"
-    GHC-Options:  "-DDEBUG"
-
-  ghc-options:    -Wall -fwarn-tabs -threaded -O
+  ghc-options:      -Wall -fwarn-tabs -threaded -O
