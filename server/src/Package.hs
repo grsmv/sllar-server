@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Json (fromJSON, toJSON) where
+module Package (fromJSON, toJSON) where
 
 import Control.Applicative ((<$>), (<*>), empty)
 import Data.Aeson
