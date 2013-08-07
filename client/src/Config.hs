@@ -2,22 +2,25 @@
 
 module Config where
 
+-- Sllar
+import Paths_sllar_client
+
+-- System
 import Data.Yaml
 import GHC.Generics
 import qualified Data.ByteString.Char8 as BS
 
-data Repositories = Repositories { repositories :: [String] }
-                    deriving (Show, Generic)
+data Config = Config { repositories :: [String] }
+                deriving (Show, Generic)
 
 instance FromJSON Repositories
 
 --
--- Returning a list of repositories to get data from
--- Output: list of urls to repositories
+-- Returning a config
+-- Output: config (or nothing)
 --
-repos :: IO (Maybe [String])
-repos = do rawText <- readFile "example.yaml"
-           let repos' = decode (BS.pack rawText) :: Maybe Repositories
-           return $ case repos' of
-                      Just crds -> Just $ repositories crds
-                      _         -> Nothing
+config :: IO (Maybe Config)
+config = do configPath <- getDataFileName "config"
+            rawText <- readFile configPath
+            let cfg = decode (BS.pack rawText) :: Maybe Config
+            return cfg
