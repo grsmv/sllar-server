@@ -9,7 +9,6 @@ import System.Posix.Process
 import Paths_sllar_server
 
 -- System
-import Control.Monad
 import System.Environment (getArgs)
 import System.Process (readProcessWithExitCode)
 import Text.Regex.Posix ((=~))
@@ -72,9 +71,10 @@ env = do
     p ""
     y "Current state:    "; f $ s ++ "\n"
     y "Port:             "; print $ port config'
-    y "Packages folder:  "; p $ sharePath ++ "packages/"
-    y "Config file:      "; p $ sharePath ++ "config"
-    y "PID file:         "; p $ sharePath ++ pidFile
+    y "Data folder:      "; p sharePath
+    y "Packages folder:  "; p   "├── packages/"
+    y "Config file:      "; p   "├── config"
+    y "PID file:         "; p $ "└── " ++ pidFile
     p ""
 
 
