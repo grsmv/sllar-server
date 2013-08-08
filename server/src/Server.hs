@@ -18,7 +18,7 @@ import System.Posix.Daemonize (daemonize)
 
 data Request     = Request { rtype :: RequestType, path :: String }
 data Response    = Response { body :: String, restype :: String }
-data RequestType = GET | POST deriving Show
+data RequestType = GET | POST deriving (Show, Read)
 
 instance Show Request where
     show r = "Request {" ++ show (rtype r) ++ " " ++ path r ++ "}"
@@ -114,18 +114,7 @@ template Response { body = b, restype = t } =
 parseRequest :: String -> Request
 parseRequest requestHeaders =
     case words (head (lines requestHeaders)) of
-      [t, p, _] -> Request { rtype=fromString t, path=p }
-
-
---
--- Converting string presentation of request type into specific type
--- Input: string presentation of request type
--- Output: value of a specific type
---
-fromString :: String -> RequestType
-fromString t = case t of
-                 "GET" -> GET
-                 "POST" -> POST
+      [t, p, _] -> Request { rtype=read t, path=p }
 
 
 {------------------------------------------------------------------------------
@@ -140,5 +129,5 @@ writePid = do
     pid <- getProcessID
     tmpFolder <- getDataFileName "tmp/"
     let pidfile = tmpFolder ++ "sllar-server.pid"
-        pidStr = show pid :: String
+        pidStr = show pid
     writeFile pidfile pidStr
