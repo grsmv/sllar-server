@@ -5,7 +5,6 @@ import qualified Server
 import Common
 import Config
 import Examination (checkFile)
-import System.Posix.Process
 import Paths_sllar_server
 
 -- System

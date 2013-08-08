@@ -77,6 +77,7 @@ stop = do
 -- Routing request to a specific content
 -- Input: incoming request
 -- Output: content for a specific route
+-- TODO: `json` and `html` move to a separate functions
 --
 router :: Request -> IO Response
 router request = do
@@ -85,6 +86,7 @@ router request = do
     let Request r p = request
         (h, j) = ("text/html", "application/json")
         (r', t) = case (r, p) of
+                --  (get, "/")         -> html index
                     (GET, "/")         -> (index,                         h)
                     (GET, "/packages") -> ("[{'name':'A'},{'name':'B'}]", j)
                     _                  -> (index,                         h)

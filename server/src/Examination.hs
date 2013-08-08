@@ -49,9 +49,7 @@ lookupEnv' :: String -> IO (Maybe String)
 lookupEnv' k = do
   env <- getEnvironment
   let result = find (\(k', _) -> k' == k) env
-  return $ case result of
-    Just (_, v) -> Just v
-    _           -> Nothing
+  return $ fmap snd result
 
 
 --
