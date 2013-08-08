@@ -1,0 +1,9 @@
+name:          List
+description:   Collection of useful methods for working with lists
+author:        Serge Gerasimov
+maintainer:    Serge Gerasimov <mail@grsmv.com>
+license:       MIT
+copyright:     (c) 2013 Serge Gerasimov
+homepage:      https://github.com/grsmv/sequencel-list
+tracker:       https://github.com/grsmv/sequencel-list/issues
+version:       0.1.1.2

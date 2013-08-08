@@ -4,10 +4,10 @@ module Main where
 import qualified Server
 import Common
 import Config
-import Examination (checkFile)
 import Paths_sllar_server
 
 -- System
+import System.Directory (doesFileExist)
 import System.Environment (getArgs)
 import System.Process (readProcessWithExitCode)
 import Text.Regex.Posix ((=~))
@@ -56,7 +56,7 @@ env = do
         (p, y) = (putStrLn, yellow) -- shortcuts
     sharePath <- getDataFileName ""
     Just config' <- config
-    tmpFileExistence <- checkFile $ sharePath ++ pidFile
+    tmpFileExistence <- doesFileExist $ sharePath ++ pidFile
 
     (f, s) <- if tmpFileExistence
                 then do pid <- readFile $ sharePath ++ pidFile
