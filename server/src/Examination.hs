@@ -8,6 +8,7 @@ import Common
 import System.Directory
 import System.Environment
 import Data.List (find)
+import qualified Data.Map as Map
 
 
 --
@@ -41,15 +42,14 @@ checkFile = genericCheck doesFileExist
 --
 -- Return the value of the environment variable var,
 -- or Nothing if there is no such value.
--- NOTE: replace this by standard `lookupEnv` after moving to 7.6.x
+-- NOTE: replace this by standard `lookupEnv` after moving to GHC 7.6.x
 -- Input: env variable name to search
 -- Output: boolean result
 --
 lookupEnv' :: String -> IO (Maybe String)
 lookupEnv' k = do
   env <- getEnvironment
-  let result = find (\(k', _) -> k' == k) env
-  return $ fmap snd result
+  return $ Map.lookup k (Map.fromList env)
 
 
 --
