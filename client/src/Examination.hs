@@ -7,8 +7,6 @@ module Examination
 import Common
 import System.Directory
 import System.Environment
-import Data.List (find)
-import qualified Data.Map as Map
 
 
 --
@@ -49,7 +47,7 @@ checkFile = genericCheck doesFileExist
 lookupEnv' :: String -> IO (Maybe String)
 lookupEnv' k = do
   env <- getEnvironment
-  return $ Map.lookup k (Map.fromList env)
+  return $ lookup k env
 
 
 --
