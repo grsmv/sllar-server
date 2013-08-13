@@ -25,8 +25,8 @@ main =
             do let p = putStrLn
                case head args of
                  "install" -> withName $ Package.install (drop 1 args)
-                 "show"    -> withName $ Package.show' (args !! 1)
-                 "create"  -> withName $ Package.create (args !! 1)
+                 "show"    -> withName $ Package.showInfo (args !! 1)
+                 "init"    -> withName $ Package.initialize (args !! 1)
                  "publish" -> withName $ Package.publish (drop 1 args)
                  "list"    -> PackageList.show'
                  "update"  -> PackageList.update
