@@ -27,6 +27,7 @@ main =
                  "install" -> withName $ Package.install (drop 1 args)
                  "show"    -> withName $ Package.showInfo (args !! 1)
                  "init"    -> withName $ Package.initialize (args !! 1)
+                 "pack"    -> Package.pack
                  "publish" -> withName $ Package.publish (drop 1 args)
                  "list"    -> PackageList.show'
                  "update"  -> PackageList.update
