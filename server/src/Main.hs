@@ -11,6 +11,7 @@ import System.Directory (doesFileExist)
 import System.Environment (getArgs)
 import System.Process (readProcessWithExitCode)
 import Text.Regex.Posix ((=~))
+import qualified Version
 
 
 main :: IO ()
@@ -24,7 +25,8 @@ main = do
         "env"      -> env
         "path"     -> do path <- getDataFileName "resources/packages/"
                          putStrLn path
-        _          -> argFailure
+        "help"     -> putStrLn "help"
+        _          -> putStrLn "help"
 
 
 --
@@ -53,7 +55,7 @@ withArgs args f = if null args
 env :: IO ()
 env = do
     let pidFile = "tmp/sllar-server.pid"
-        (p, y) = (putStrLn, yellow) -- shortcuts
+        (p, y, g) = (putStrLn, yellow, green) -- shortcuts
     sharePath <- getDataFileName ""
     Just config' <- config
     tmpFileExistence <- doesFileExist $ sharePath ++ pidFile
@@ -67,6 +69,9 @@ env = do
                 else return (red, "stopped")
 
     -- formatting nice message
+    p ""
+    p $ "Sllar-server. Version " ++ Version.version
+    p "For additional information visit https://github.com/grsmv/sllar"
     p ""
     y "Current state:    "; f $ s ++ "\n"
     y "Port:             "; print $ port config'

@@ -13,7 +13,7 @@ import qualified Data.ByteString.Char8 as BS
 data Config = Config { repositories :: [String] }
                 deriving (Show, Generic)
 
-instance FromJSON Repositories
+instance FromJSON Config
 
 --
 -- Returning a config

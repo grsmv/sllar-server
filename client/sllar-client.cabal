@@ -14,7 +14,7 @@ build-type:         Simple
 cabal-version:      >=1.8
 
 data-dir:           resources
-data-files:         sllarrc
+data-files:         config
 extra-source-files: src/*.hs
 
 Executable sllar
