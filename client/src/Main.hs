@@ -3,12 +3,16 @@ module Main where
 -- Sllar
 import Examination (checkEnv)
 import Common
+import Config
 import qualified Package
 import qualified PackageList
+import qualified Version
+import Paths_sllar_client
 
 -- System
 import Control.Exception (onException)
 import Control.Monad (when)
+import Data.Maybe
 import System.Environment (getArgs)
 
 
@@ -26,7 +30,7 @@ main =
                  "publish" -> withName $ Package.publish (drop 1 args)
                  "list"    -> PackageList.show'
                  "update"  -> PackageList.update
-                 "env"     -> p "show your current configuration"
+                 "env"     -> envInfo
                  "help"    -> p "help"
                  _         -> p "help"
 
@@ -51,3 +55,24 @@ withArgs :: [String] -> IO () -> IO ()
 withArgs args f = if null args
                     then failDown "No arguments specified"
                     else f
+
+
+--
+-- Showing information about current installation
+--
+envInfo :: IO ()
+envInfo = do
+  configPath <- getDataFileName "config"
+  config' <- config
+  let repos = repositories $ fromMaybe (Config []) config'
+      p = putStrLn
+
+  p $ "Sllar-client. Version " ++ Version.version
+  p "For additional information visit https://github.com/grsmv/sllar \n"
+  p "Config file:"
+  p $ "  " ++ configPath ++ "\n"
+
+  p "Repositories:"
+  if not . null $ repos
+    then mapM_ (p . ("  " ++)) repos
+    else p "  [!] There's no registered repositories"
