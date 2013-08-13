@@ -28,7 +28,7 @@ main =
                  "show"    -> withName $ Package.showInfo (args !! 1)
                  "init"    -> withName $ Package.initialize (args !! 1)
                  "pack"    -> Package.pack
-                 "publish" -> withName $ Package.publish (drop 1 args)
+                 "publish" -> Package.publish
                  "list"    -> PackageList.show'
                  "update"  -> PackageList.update
                  "env"     -> envInfo

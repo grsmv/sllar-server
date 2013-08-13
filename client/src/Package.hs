@@ -23,6 +23,20 @@ import qualified Data.ByteString.Char8 as BS
 data Package = Package { name :: String, version :: String } deriving (Show, Generic)
 instance FromJSON Package
 
+
+--
+--  *.sllar file is just a simple YAML-formatted datafile, so, in
+--  case of data correctness, it's content can be represented as
+--  instance of Package class
+--  This function grabs a *.sllar file and tries to present it Input
+--  system-recognizable form.
+--
+config :: FilePath -> IO (Maybe Package)
+config path = do rawText <- readFile path
+                 let packageConfig = decode (BS.pack rawText) :: Maybe Package
+                 return packageConfig
+
+
 --
 -- Creating template for a package
 -- Input: package's name
@@ -63,10 +77,14 @@ pack :: IO ()
 pack = do
     currentDirectory <- getCurrentDirectory
     files <- getDirectoryContents currentDirectory
+
+    -- checking *.sllar file existence
     let packageConfigList = filter (".sllar" `isInfixOf`) files
     if not . null $ packageConfigList
         then do let packageConfigFile = head packageConfigList
                 packageConfig <- config packageConfigFile
+
+                -- checking correctness of contents of *.sllar file
                 case packageConfig of
                     Just cfg -> do let tmp = "dist"
                                    -- creating `dist` if it's not exists
@@ -77,9 +95,26 @@ pack = do
                                    let tarName = tmp ++ "/" ++ name cfg ++ "-" ++ version cfg ++ ".sllar.tar"
                                        junk = [tmp, ".", "..", ".DS_Store"]
                                    create tarName "" $ files \\ junk
+
+                                   -- finish message
                                    putStrLn $ tarName ++ " created"
                     Nothing -> failDown $ "Verify correctness of " ++ packageConfigFile
         else failDown "Please create <PACKAGE_NAME>.sllar file"
+
+
+--
+--
+--
+publish :: IO ()
+publish =
+-- check if *.sllar file exists
+-- check repos availability
+-- if number of repos > 1 - ask to select one
+-- if there's no dist/*.sllar.tar files - pack
+-- send to a selected repo
+-- read an answer - if all OK - renew repo's information
+-- if fail - show error message
+  putStrLn "publish"
 
 
 --
@@ -94,19 +129,3 @@ install packages = putStrLn $ "Installing " ++ unwords packages
 --
 showInfo :: String -> IO ()
 showInfo p = putStrLn $ "Show information about package " ++ p
-
-
---
---
---
-publish :: [String] -> IO ()
-publish packages = putStrLn $ "Publish package list: " ++ unwords packages
-
-
---
---  Getting data from Package's .sllar file
---
-config :: FilePath -> IO (Maybe Package)
-config path = do rawText <- readFile path
-                 let packageConfig = decode (BS.pack rawText) :: Maybe Package
-                 return packageConfig
