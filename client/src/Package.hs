@@ -57,13 +57,13 @@ initialize p = do
                 createDirectory $ packageDir ++ "/dist"
 
                 writeFile (packageDir ++ "/" ++ p ++ ".sllar") $
-                    "name:        " ++ p ++ "\n\
-                    \description: A few words on library\n\
-                    \author:      John Doe <john@doe.com>\n\
-                    \maintainer:  Jane Doe\n\
-                    \license:     Chosen license (MIT, BSD etc)\n\
-                    \copyright:   (C) 2013 John & Jane Doe\n\
-                    \version:     0.0.1"
+                    "name:        " ++ p ++ "\n" ++
+                    "description: A few words on library\n" ++
+                    "author:      John Doe <john@doe.com>\n" ++
+                    "maintainer:  Jane Doe\n" ++
+                    "license:     Chosen license (MIT, BSD etc)\n" ++
+                    "copyright:   (C) 2013 John & Jane Doe\n" ++
+                    "version:     0.0.1"
 
                 writeFile (packageDir ++ "/" ++ p ++ ".sl") $
                     "// Library name: " ++ p ++ "\n" ++
