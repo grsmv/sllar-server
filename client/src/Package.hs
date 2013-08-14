@@ -46,6 +46,11 @@ initialize p = do
     currentDirectory <- getCurrentDirectory
     isCurrentDirectoryOK <- checkDirectory currentDirectory
 
+    -- checking if there's no folder with same name
+    doesTargetFolderExists <- doesDirectoryExist $ currentDirectory ++ "/" ++ p
+    unless doesTargetFolderExists $
+      failDown $ "Folder with name \"" ++ p ++ "\" already exists"
+
     if isCurrentDirectoryOK
         then do let packageDir = currentDirectory ++ "/" ++ p
                 createDirectory packageDir
@@ -65,7 +70,6 @@ initialize p = do
                     "// Author: John Doe"
 
                 putStrLn $ "Folder and Sllar files for package \"" ++ p ++ "\" successfuly created"
-
         else failDown "Current directory is not writable"
 
 
