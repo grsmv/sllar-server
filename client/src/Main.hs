@@ -10,7 +10,6 @@ import qualified Version
 import Paths_sllar_client
 
 -- System
-import Control.Exception (onException)
 import Control.Monad (when)
 import Data.Maybe
 import System.Environment (getArgs)
@@ -41,10 +40,12 @@ main =
 -- Input: function to wrap
 -- Output: funtion wrapped by package name existence verification
 --
-withName :: IO a -> IO a
-withName action =
-    onException action
-      (failDown "Specify package name")
+withName :: IO () -> IO ()
+withName action = do
+    args <- getArgs
+    if null $ drop 1 args
+      then failDown "Specify package name"
+      else action
 
 
 --

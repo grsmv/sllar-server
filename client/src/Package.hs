@@ -12,7 +12,7 @@ import Examination (checkDirectory)
 import Common
 
 -- System
-import Control.Monad (unless)
+import Control.Monad (unless, when)
 import Codec.Archive.Tar (create)
 import System.Directory
 import Data.List (isInfixOf, (\\))
@@ -48,7 +48,7 @@ initialize p = do
 
     -- checking if there's no folder with same name
     doesTargetFolderExists <- doesDirectoryExist $ currentDirectory ++ "/" ++ p
-    unless doesTargetFolderExists $
+    when doesTargetFolderExists $
       failDown $ "Folder with name \"" ++ p ++ "\" already exists"
 
     if isCurrentDirectoryOK
