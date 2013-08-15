@@ -29,6 +29,8 @@ Executable sllar
     bytestring,
     directory,
     ghc-prim,
+    http-types,
+    http-conduit,
     split,
     tar,
     yaml

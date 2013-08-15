@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Package
   ( install
@@ -14,14 +15,18 @@ import Examination (checkDirectory)
 
 -- System
 import Codec.Archive.Tar (create)
+import Control.Exception
 import Control.Monad (unless, when)
 import Data.Char
-import Data.List (isInfixOf, (\\), sort, elemIndex)
+import Data.List (isInfixOf, (\\), elemIndex)
 import Data.Maybe (fromMaybe)
 import Data.Yaml
 import GHC.Generics
+import Network.HTTP.Conduit
+import Network.HTTP.Types
 import System.Directory
 import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString.Lazy.Char8 as BL
 
 data Package = Package { name :: String, version :: String } deriving (Show, Generic)
 instance FromJSON Package
@@ -35,9 +40,9 @@ instance FromJSON Package
 --  system-recognizable form.
 --
 config :: FilePath -> IO (Maybe Package)
-config path = do rawText <- readFile path
-                 let packageConfig = decode (BS.pack rawText) :: Maybe Package
-                 return packageConfig
+config path' = do rawText <- readFile path'
+                  let packageConfig = decode (BS.pack rawText) :: Maybe Package
+                  return packageConfig
 
 
 --
@@ -114,14 +119,7 @@ pack = do
 --
 publish :: IO ()
 publish = do
-    currentDirectory <- getCurrentDirectory
-    let dist = currentDirectory ++ "/dist"
-    ifDistExists <- doesDirectoryExist dist
-    filesinDist <- getDirectoryContents dist
-    let tarFiles = filter (not . (".sllar.tar" `isInfixOf`)) filesinDist
-
-    -- if there's no `dist` or tar files inside `dist` files - pack
-    when (not ifDistExists || null tarFiles) pack
+    (tarDist, tarFiles) <- tarFilesInDist
 
     -- getting repositories from sllar-server config
     cfg <- Config.config
@@ -137,22 +135,42 @@ publish = do
                                 n <- getRepoNumber repositories
                                 return $ repositories !! (n - 1)
                         else return $ head repositories
-              putStrLn $ "Repository to send to: " ++ repo
+
+              -- sending maximum available version of package to repository
+              sendPackage repo $ tarDist ++ "/" ++ maximum tarFiles
+
+              -- read an answer - if all OK - renew repo's information
+              -- if fail - show error message
 
       else failDown "There's no repositories in config"
 
-    -- get repos
-
-
-
--- send to a selected repo
--- read an answer - if all OK - renew repo's information
--- if fail - show error message
     putStrLn "publish"
 
 
 --
+-- Getting list of already packed tarballs, if none - pack one
+-- and return refreshed list
+-- Output: tarballs folder, list of tarballs
 --
+tarFilesInDist :: IO (String, [String])
+tarFilesInDist = do
+    currentDirectory <- getCurrentDirectory
+    let dist = currentDirectory ++ "/dist"
+    ifDistExists <- doesDirectoryExist dist
+    filesinDist <- getDirectoryContents dist
+    let tarFiles = filter (".sllar.tar" `isInfixOf`) filesinDist
+
+    -- if there's no `dist` or tar files inside `dist` files - pack
+    if not ifDistExists || null tarFiles
+       then do pack
+               tarFilesInDist
+       else return (dist, tarFiles)
+
+
+--
+-- Asking user to pick one from available repositories
+-- Input: list of repositories
+-- Output: index of chosen one
 --
 getRepoNumber :: [String] -> IO Int
 getRepoNumber repos' = do
@@ -162,6 +180,23 @@ getRepoNumber repos' = do
       then return $ digitToInt (head d)
       else do putStrLn $ "Please retry [1..." ++ show (length repos') ++ "]"
               getRepoNumber repos'
+
+
+--
+-- Sending selected package to repository, reading response
+-- Input: repository url, path to tarball
+--
+sendPackage :: String -> FilePath -> IO ()
+sendPackage repoUrl packagePath = do
+    req0 <- parseUrl repoUrl
+    fileContents <- BL.readFile packagePath
+    let request = req0 { method = methodPost
+                       , requestHeaders = [("Content-Type", "application/x-tar")]
+                       , requestBody = RequestBodyLBS fileContents }
+
+    onException (do res <- withManager $ httpLbs request
+                    BL.putStrLn $ responseBody res)
+                (failDown $ "Repository " ++ repoUrl ++ " isn't available")
 
 
 --
