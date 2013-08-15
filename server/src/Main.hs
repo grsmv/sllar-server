@@ -55,7 +55,7 @@ withArgs args f = if null args
 env :: IO ()
 env = do
     let pidFile = "tmp/sllar-server.pid"
-        (p, y, g) = (putStrLn, yellow, green) -- shortcuts
+        (p, y) = (putStrLn, yellow) -- shortcuts
     sharePath <- getDataFileName ""
     Just config' <- config
     tmpFileExistence <- doesFileExist $ sharePath ++ pidFile

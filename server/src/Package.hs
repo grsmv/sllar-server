@@ -4,6 +4,7 @@
 module Package (fromJson, toJson, publish) where
 
 import Data.Aeson
+import Data.Maybe (fromMaybe)
 import GHC.Generics
 import qualified Data.ByteString.Lazy.Char8 as BL
 
@@ -51,4 +52,9 @@ toJson = encode
 --
 --
 publish :: [(String, String)] -> IO String
-publish options = return "OK"
+publish options = do
+    let value k = fromMaybe "" $ lookup k options
+        tarName = value "tarName"
+        tarBody = value "tarBody"
+    writeFile ("/Users/sergey/Desktop/" ++ tarName) tarBody
+    return "OK"
