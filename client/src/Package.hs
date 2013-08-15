@@ -19,6 +19,7 @@ import Control.Exception
 import Control.Monad (unless, when)
 import Data.Char
 import Data.List (isInfixOf, (\\), elemIndex)
+import Data.List.Split (splitOn)
 import Data.Maybe (fromMaybe)
 import Data.Yaml
 import GHC.Generics
@@ -182,21 +183,26 @@ getRepoNumber repos' = do
 --
 sendPackage :: String -> FilePath -> IO ()
 sendPackage repoUrl packagePath = do
-    req0 <- parseUrl repoUrl
+    req0 <- parseUrl $ repoUrl ++ "/publish"
     fileContents <- BL.readFile packagePath
-    let request = req0 { method = methodPost
+    let packagePathSplitted = splitOn "/" packagePath
+
+        -- prepearing request
+        request = req0 { method = methodPost
                        , requestHeaders = [("Content-Type", "application/x-tar")]
-                       , requestBody = RequestBodyLBS fileContents }
+                       , requestBody = RequestBodyLBS fileContents
+                       , queryString = BS.pack $ "tarName=" ++ (packagePathSplitted !! length packagePathSplitted)}
 
     onException (do res <- withManager $ httpLbs request
                     let Status code message = responseStatus res
 
                     -- todo: case message ("published", "version exists", "incorrect data")
+                    -- todo: if OK - refresh information about packages from repos
                     if code == 200 && message == "OK"
-                      then putStrLn "Sllar package successfully published"
+                       then putStrLn "Sllar package successfully published"
 
-                      -- todo: show failure reason
-                      else failDown "Package publishing failured")
+                       -- todo: show failure reason
+                       else failDown "Package publishing failured")
                 (failDown $ "Repository " ++ repoUrl ++ " isn't available")
 
 

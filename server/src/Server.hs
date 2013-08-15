@@ -8,13 +8,13 @@ import Paths_sllar_server
 -- System
 import Control.Concurrent
 import Control.Monad (forever)
+import Data.Maybe
 import Network
 import System.Directory (removeFile)
 import System.IO
 import System.Process (system)
 import System.Posix.Process (getProcessID)
 import System.Posix.Daemonize (daemonize)
-
 
 data Request     = Request { rtype :: RequestType, path :: String }
 data Response    = Response { body :: String, restype :: String }
@@ -37,10 +37,7 @@ start =
 
       -- getting data from server's config
       config' <- config
-      let port' = case config' of
-                    Just cfg -> port cfg
-                    _        -> 5002
-
+      let port' = port $ fromMaybe (Config 5000) config'
       sock <- listenOn $ PortNumber (fromInteger port')
 
       forkIO writePid
@@ -77,19 +74,18 @@ stop = do
 -- Routing request to a specific content
 -- Input: incoming request
 -- Output: content for a specific route
--- TODO: `json` and `html` move to a separate functions
 --
 router :: Request -> IO Response
 router request = do
     indexTemplatePath <- getDataFileName "html/index.html"
     index <- readFile indexTemplatePath
     let Request r p = request
-        (h, j) = ("text/html", "application/json")
+        (html, json, text) = ("text/html", "application/json", "text/plain")
         (r', t) = case (r, p) of
-                --  (get, "/")         -> html index
-                    (GET, "/")         -> (index,                         h)
-                    (GET, "/packages") -> ("[{'name':'A'},{'name':'B'}]", j)
-                    _                  -> (index,                         h)
+                    (GET,  "/")         -> (index,                         html)
+                    (GET,  "/packages") -> ("[{'name':'A'},{'name':'B'}]", json)
+                    (POST, "/publish")  -> ("",                            text)
+                    _                   -> (index,                         html)
     return (Response r' t)
 
 
