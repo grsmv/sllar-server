@@ -27,6 +27,7 @@ import Network.HTTP.Conduit
 import Network.HTTP.Types
 import System.Directory
 import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString.Base64 as Base64 (encode)
 
 data Package = Package { name :: String, version :: String } deriving (Show, Generic)
 instance FromJSON Package
@@ -191,7 +192,7 @@ sendPackage repoUrl packagePath = do
                        , requestHeaders =
                            [ ("Content-Type", "application/x-tar")
                            , ("tarName", BS.pack $ packagePathSplitted !! (length packagePathSplitted - 1))
-                           , ("tarBody", fileContents) ]}
+                           , ("tarBody", Base64.encode fileContents) ]}
 
     onException (do res <- withManager $ httpLbs request
                     let Status code message = responseStatus res

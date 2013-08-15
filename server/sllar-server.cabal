@@ -29,6 +29,7 @@ Executable sllar-server
     aeson,
     ansi-terminal,
     base,
+    base64-bytestring,
     bytestring,
     directory,
     ghc-prim,

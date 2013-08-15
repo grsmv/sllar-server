@@ -6,7 +6,9 @@ module Package (fromJson, toJson, publish) where
 import Data.Aeson
 import Data.Maybe (fromMaybe)
 import GHC.Generics
+import qualified Data.ByteString.Char8 as BS (pack, writeFile)
 import qualified Data.ByteString.Lazy.Char8 as BL
+import qualified Data.ByteString.Base64 as Base64 (decodeLenient)
 
 data Package = Package { name        :: String
                        , description :: String
@@ -55,6 +57,6 @@ publish :: [(String, String)] -> IO String
 publish options = do
     let value k = fromMaybe "" $ lookup k options
         tarName = value "tarName"
-        tarBody = value "tarBody"
-    writeFile ("/Users/sergey/Desktop/" ++ tarName) tarBody
+        tarBody = Base64.decodeLenient $ BS.pack (value "tarBody")
+    BS.writeFile ("/Users/sergey/Desktop/" ++ tarName) tarBody
     return "OK"

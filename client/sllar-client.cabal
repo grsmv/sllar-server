@@ -26,11 +26,12 @@ Executable sllar
     aeson,
     ansi-terminal,
     base,
+    base64-bytestring,
     bytestring,
     directory,
     ghc-prim,
-    http-types,
     http-conduit,
+    http-types,
     split,
     tar,
     yaml
