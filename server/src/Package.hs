@@ -1,9 +1,8 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Package (fromJSON, toJSON) where
+module Package (fromJson, toJson, publish) where
 
-import Control.Applicative ((<$>), (<*>), empty)
 import Data.Aeson
 import GHC.Generics
 import qualified Data.ByteString.Lazy.Char8 as BL
@@ -35,8 +34,8 @@ instance FromJSON Version
 -- Input: string presentation of json
 -- Output: parsed output
 --
-fromJSON :: String -> Maybe [Package]
-fromJSON s = decode (BL.pack s) :: Maybe [Package]
+fromJson :: String -> Maybe [Package]
+fromJson s = decode (BL.pack s) :: Maybe [Package]
 
 
 --
@@ -44,5 +43,12 @@ fromJSON s = decode (BL.pack s) :: Maybe [Package]
 -- Input: list of packages
 -- Output: json output
 --
-toJSON :: [Package] -> BL.ByteString
-toJSON = encode
+toJson :: [Package] -> BL.ByteString
+toJson = encode
+
+
+--
+--
+--
+publish :: [(String, String)] -> IO String
+publish options = return "OK"

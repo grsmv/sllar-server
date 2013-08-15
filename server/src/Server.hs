@@ -3,6 +3,7 @@ module Server ( start
 
 -- Sllar
 import Config
+import Package (publish)
 import Paths_sllar_server
 
 -- System
@@ -16,8 +17,13 @@ import System.Process (system)
 import System.Posix.Process (getProcessID)
 import System.Posix.Daemonize (daemonize)
 
-data Request     = Request { rtype :: RequestType, path :: String }
-data Response    = Response { body :: String, restype :: String }
+data Request     = Request { rtype :: RequestType
+                           , path :: String
+                           , options :: [(String, String)] }
+
+data Response    = Response { body :: String
+                            , restype :: String }
+
 data RequestType = GET | POST deriving (Show, Read)
 
 instance Show Request where
@@ -46,8 +52,8 @@ start =
         (handle, _, _) <- accept sock
 
         forkIO $ do
-           request <- hGetContents handle
-           response <- router (parseRequest request)
+           request <- fmap (parseRequest . lines) (hGetContents handle)
+           response <- router request
            hPutStr handle $ template response
            hFlush handle
            hClose handle
@@ -77,16 +83,18 @@ stop = do
 --
 router :: Request -> IO Response
 router request = do
+    let Request rtype' path' options' = request
     indexTemplatePath <- getDataFileName "html/index.html"
     index <- readFile indexTemplatePath
-    let Request r p = request
-        (html, json, text) = ("text/html", "application/json", "text/plain")
-        (r', t) = case (r, p) of
-                    (GET,  "/")         -> (index,                         html)
-                    (GET,  "/packages") -> ("[{'name':'A'},{'name':'B'}]", json)
-                    (POST, "/publish")  -> ("",                            text)
-                    _                   -> (index,                         html)
-    return (Response r' t)
+    publishResult <- publish options'
+
+    let (html, json, text) = ("text/html", "application/json", "text/plain")
+        (body', respType) = case (rtype', path') of
+                                 (GET,    "/")         -> (index,            html)
+                                 (GET,    "/packages") -> ("[{'name':'A'}]", json)
+                                 (POST,   "/publish")  -> (publishResult,    text)
+                                 _                     -> (index,            html)
+    return (Response body' respType)
 
 
 --
@@ -107,10 +115,20 @@ template Response { body = b, restype = t } =
 -- Input: raw string with request headers
 -- Output: parsed request details
 --
-parseRequest :: String -> Request
-parseRequest requestHeaders =
-    case words (head (lines requestHeaders)) of
-      [t, p, _] -> Request { rtype=read t, path=p }
+parseRequest :: [String] -> Request
+parseRequest lns =
+    case words (head lns) of
+      [t, p, _] -> Request { rtype=read t, path=p, options=parseRequestHelper(tail lns, []) }
+
+
+--
+-- Getting request headers (options)
+--
+parseRequestHelper :: ([String], [(String, String)]) -> [(String, String)]
+parseRequestHelper ([], accum) = accum
+parseRequestHelper (l:rest, accum)
+    | length (words l) < 2 = accum
+    | otherwise = parseRequestHelper(rest, accum ++ [(init . head . words $ l, unwords . tail . words $ l)] )
 
 
 {------------------------------------------------------------------------------

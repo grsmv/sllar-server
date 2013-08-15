@@ -27,7 +27,6 @@ import Network.HTTP.Conduit
 import Network.HTTP.Types
 import System.Directory
 import qualified Data.ByteString.Char8 as BS
-import qualified Data.ByteString.Lazy.Char8 as BL
 
 data Package = Package { name :: String, version :: String } deriving (Show, Generic)
 instance FromJSON Package
@@ -184,14 +183,15 @@ getRepoNumber repos' = do
 sendPackage :: String -> FilePath -> IO ()
 sendPackage repoUrl packagePath = do
     req0 <- parseUrl $ repoUrl ++ "/publish"
-    fileContents <- BL.readFile packagePath
+    fileContents <- BS.readFile packagePath
     let packagePathSplitted = splitOn "/" packagePath
 
         -- prepearing request
         request = req0 { method = methodPost
-                       , requestHeaders = [("Content-Type", "application/x-tar")]
-                       , requestBody = RequestBodyLBS fileContents
-                       , queryString = BS.pack $ "tarName=" ++ (packagePathSplitted !! length packagePathSplitted)}
+                       , requestHeaders =
+                           [ ("Content-Type", "application/x-tar")
+                           , ("tarName", BS.pack $ packagePathSplitted !! length packagePathSplitted)
+                           , ("tarBody", fileContents) ]}
 
     onException (do res <- withManager $ httpLbs request
                     let Status code message = responseStatus res
