@@ -8,16 +8,19 @@ module Package
   , pack ) where
 
 -- Sllar
-import Examination (checkDirectory)
 import Common
+import qualified Config
+import Examination (checkDirectory)
 
 -- System
-import Control.Monad (unless, when)
 import Codec.Archive.Tar (create)
-import System.Directory
-import Data.List (isInfixOf, (\\))
+import Control.Monad (unless, when)
+import Data.Char
+import Data.List (isInfixOf, (\\), sort, elemIndex)
+import Data.Maybe (fromMaybe)
 import Data.Yaml
 import GHC.Generics
+import System.Directory
 import qualified Data.ByteString.Char8 as BS
 
 data Package = Package { name :: String, version :: String } deriving (Show, Generic)
@@ -107,18 +110,58 @@ pack = do
 
 
 --
---
+-- Sending compressed package to server
 --
 publish :: IO ()
-publish =
--- check if *.sllar file exists
--- check repos availability
--- if number of repos > 1 - ask to select one
--- if there's no dist/*.sllar.tar files - pack
+publish = do
+    currentDirectory <- getCurrentDirectory
+    let dist = currentDirectory ++ "/dist"
+    ifDistExists <- doesDirectoryExist dist
+    filesinDist <- getDirectoryContents dist
+    let tarFiles = filter (not . (".sllar.tar" `isInfixOf`)) filesinDist
+
+    -- if there's no `dist` or tar files inside `dist` files - pack
+    when (not ifDistExists || null tarFiles) pack
+
+    -- getting repositories from sllar-server config
+    cfg <- Config.config
+    let repositories = Config.repositories $ fromMaybe (Config.Config []) cfg
+
+    -- checking if any repositories available
+    if not . null $ repositories
+      then do
+              -- if more than one repo available in config - ask to select one
+              repo <- if length repositories > 1
+                        then do putStrLn "Please choose between available repositories:"
+                                mapM_ (\r -> putStrLn $ "  [" ++ show (fromMaybe 0 (elemIndex r repositories) + 1) ++ "] " ++ r) repositories
+                                n <- getRepoNumber repositories
+                                return $ repositories !! (n - 1)
+                        else return $ head repositories
+              putStrLn $ "Repository to send to: " ++ repo
+
+      else failDown "There's no repositories in config"
+
+    -- get repos
+
+
+
 -- send to a selected repo
 -- read an answer - if all OK - renew repo's information
 -- if fail - show error message
-  putStrLn "publish"
+    putStrLn "publish"
+
+
+--
+--
+--
+getRepoNumber :: [String] -> IO Int
+getRepoNumber repos' = do
+    d <- getLine
+    let num = digitToInt $ head d
+    if isDigit (head d) && num <= length repos' && num > 0
+      then return $ digitToInt (head d)
+      else do putStrLn $ "Please retry [1..." ++ show (length repos') ++ "]"
+              getRepoNumber repos'
 
 
 --
