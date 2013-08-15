@@ -138,13 +138,7 @@ publish = do
 
               -- sending maximum available version of package to repository
               sendPackage repo $ tarDist ++ "/" ++ maximum tarFiles
-
-              -- read an answer - if all OK - renew repo's information
-              -- if fail - show error message
-
       else failDown "There's no repositories in config"
-
-    putStrLn "publish"
 
 
 --
@@ -195,7 +189,14 @@ sendPackage repoUrl packagePath = do
                        , requestBody = RequestBodyLBS fileContents }
 
     onException (do res <- withManager $ httpLbs request
-                    BL.putStrLn $ responseBody res)
+                    let Status code message = responseStatus res
+
+                    -- todo: case message ("published", "version exists", "incorrect data")
+                    if code == 200 && message == "OK"
+                      then putStrLn "Sllar package successfully published"
+
+                      -- todo: show failure reason
+                      else failDown "Package publishing failured")
                 (failDown $ "Repository " ++ repoUrl ++ " isn't available")
 
 
