@@ -203,7 +203,7 @@ sendPackage repoUrl packagePath = do
                        then putStrLn "Sllar package successfully published"
 
                        -- todo: show failure reason
-                       else failDown "Package publishing failured")
+                       else failDown "Package publishing failed")
                 (failDown $ "Repository " ++ repoUrl ++ " isn't available")
 
 

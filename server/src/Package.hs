@@ -51,7 +51,11 @@ toJson = encode
 
 
 --
---
+-- Recieving a package, testing it's correctness and storing it
+-- todo: tests
+--         - is *.sllar file exists
+--         - check version and name avalaibility in *.sllar
+--         - check version and name equivalence with tar name
 --
 publish :: [(String, String)] -> IO String
 publish options = do
