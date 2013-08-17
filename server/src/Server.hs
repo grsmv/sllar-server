@@ -83,15 +83,14 @@ stop = do
 --
 router :: Request -> IO Response
 router request = do
-    indexTemplatePath <- getDataFileName "html/index.html"
-
     let Request rtype' path' options' = request
         (html, json, text) = ("text/html", "application/json", "text/plain")
         (bodyIO, respType) = case (rtype', path') of
-                                  (GET,    "/")         -> (readFile indexTemplatePath, html)
                                   (GET,    "/packages") -> (return "[{'name':'A'}]", json)
                                   (POST,   "/publish")  -> (publish options',    text)
-                                  _                     -> (readFile indexTemplatePath, html)
+
+                                  -- everything else, including index
+                                  _ -> (getDataFileName "html/index.html" >>= readFile, html)
     body' <- bodyIO
     return (Response body' respType)
 
