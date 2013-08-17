@@ -188,7 +188,7 @@ sendPackage repoUrl packagePath = do
         request = req0 { method = methodPost
                        , requestHeaders =
                            [ ("Content-Type", "application/x-tar")
-                           , ("tarName", BS.pack $ packagePathSplitted !! (length packagePathSplitted - 1))
+                           , ("tarName", BS.pack $ last packagePathSplitted)
                            , ("tarBody", Base64.encode fileContents) ]}
 
     onException (do res <- withManager $ httpLbs request
