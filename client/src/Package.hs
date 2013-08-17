@@ -62,8 +62,7 @@ initialize p = do
 
     if isCurrentDirectoryOK
         then do let packageDir = currentDirectory ++ "/" ++ p
-                createDirectory packageDir
-                createDirectory $ packageDir ++ "/dist"
+                mapM_ createDirectory [packageDir, packageDir ++ "/dist"]
 
                 writeFile (packageDir ++ "/" ++ p ++ ".sllar") $
                     "name:        " ++ p ++ "\n" ++
@@ -88,8 +87,7 @@ initialize p = do
 --
 pack :: IO ()
 pack = do
-    currentDirectory <- getCurrentDirectory
-    files <- getDirectoryContents currentDirectory
+    files <- getCurrentDirectory >>= getDirectoryContents
 
     -- checking *.sllar file existence
     let packageConfigList = filter (".sllar" `isInfixOf`) files
@@ -149,8 +147,7 @@ publish = do
 --
 tarFilesInDist :: IO (String, [String])
 tarFilesInDist = do
-    currentDirectory <- getCurrentDirectory
-    let dist = currentDirectory ++ "/dist"
+    dist <- fmap (++ "/dist") getCurrentDirectory
     ifDistExists <- doesDirectoryExist dist
     filesinDist <- getDirectoryContents dist
     let tarFiles = filter (".sllar.tar" `isInfixOf`) filesinDist
