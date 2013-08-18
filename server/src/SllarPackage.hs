@@ -4,7 +4,7 @@
 -- of *.sllar files, that coming with all Sllar packages.
 -- It's used during reading and verification of incoming package.
 
-module SllarPackage (fromJson, toJson) where
+module SllarPackage where
 
 import Data.Yaml
 import GHC.Generics
@@ -26,5 +26,5 @@ instance FromJSON SllarPackage
 -- Input: ByteString with *.sllar file contents
 -- Output: instance of type SllarPackage or nothing
 --
-packageInfo :: BS.ByteString -> IO (Maybe SllarPackage)
-packageInfo = decode :: Maybe SllarPackage
+packageInfo :: BS.ByteString -> Maybe SllarPackage
+packageInfo s = decode s :: Maybe SllarPackage

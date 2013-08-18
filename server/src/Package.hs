@@ -9,14 +9,14 @@ import qualified SllarPackage as SP
 
 -- System
 import Codec.Archive.Tar (extract)
+import Control.Monad
 import Data.Aeson
 import Data.List (isInfixOf)
 import Data.Maybe (fromMaybe)
-import Data.Yaml
 import GHC.Generics
 import System.IO.Temp
 import System.Directory
-import qualified Data.ByteString.Char8 as BS (pack, writeFile)
+import qualified Data.ByteString.Char8 as BS (pack, writeFile, readFile)
 import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.ByteString.Base64 as Base64 (decodeLenient)
 import qualified Data.String.Utils as H -- part of MissingH package
@@ -85,7 +85,8 @@ publish options = do
 
     -- unpacking and examining package
     tmp <- getDataFileName "tmp"
-    return $ withTempDirectory tmp tmpName $ \tmpDir -> do
+
+    withTempDirectory tmp tmpName $ \tmpDir -> do
 
       -- extracting
       BS.writeFile (tmp ++ "/" ++ tarName) tarBody
@@ -95,32 +96,33 @@ publish options = do
       files <- getDirectoryContents (tmp ++ "/" ++ tmpName)
       let sllarFiles = filter (".sllar" `isInfixOf`) files
 
-      return $
-        if not . null $ sllarFiles
-           then do
-             -- check version and name availability in *.sllar
-             sllarFileData <- BS.readFile (tmp ++ "/" ++ tmpName ++ "/" ++ head sllarFiles) >>= SP.packageInfo sllarFileContents
-             case sllarFileData of
-               Just sllarFileData' -> do
+      if not . null $ sllarFiles
+         then do
+           -- check version and name availability in *.sllar
+           sllarFileContents <- BS.readFile (tmp ++ "/" ++ tmpName ++ "/" ++ head sllarFiles)
+           let sllarFileData = SP.packageInfo sllarFileContents
+           case sllarFileData of
+             Just packageProperties -> do
 
-                 -- checking if version not available
-                 packagesDir <- getDirectoryContents "packages"
-                 let packagePath = packagesDir ++ "/" ++ SP.name sllarFileData' ++ "-" ++ SP.version sllarFileData' ++ ".sllar.tar"
-                 versionAvailable <- doesFileExist packagePath
-                 if not versionAvailable
-                   then do
-                     -- check if parent folder available, create if not
-                     packageFolder <- getDataFileName $ "packages/" ++ SP.name sllarFileData'
-                     doesPackageNameFolderExists <- doesDirectoryExist packageFolder
-                     unless doesPackageNameFolderExists $ createDirectory packageFolder
+               -- checking if version not available
+               packagesDir <- getDataFileName "packages"
+               let packagePath = packagesDir ++ "/" ++ SP.name packageProperties ++ "-" ++ SP.version packageProperties ++ ".sllar.tar"
+               versionAvailable <- doesFileExist packagePath
 
-                     -- copy file to package holder in `packages`
-                     copyFile (tmp ++ "/" ++ tarName) packagePath
+               if not versionAvailable
+                 then do
+                   -- check if parent folder available, create if not
+                   packageFolder <- getDataFileName $ "packages/" ++ SP.name packageProperties
+                   doesPackageNameFolderExists <- doesDirectoryExist packageFolder
+                   unless doesPackageNameFolderExists $ createDirectory packageFolder
 
-                     return "OK"
+                   -- copy file to package holder in `packages`
+                   copyFile (tmp ++ "/" ++ tarName) packagePath
 
-                   else "VERSION_AVAILABLE"
+                   return "OK"
 
-               Nothing -> "INCORRECT_SLLAR_FILE"
+                 else return "VERSION_AVAILABLE"
 
-           else "NO_SLLAR_FILE"
+             Nothing -> return "INCORRECT_SLLAR_FILE"
+
+         else return "NO_SLLAR_FILE"

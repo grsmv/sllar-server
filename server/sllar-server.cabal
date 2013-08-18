@@ -34,7 +34,7 @@ Executable sllar-server
     directory,
     ghc-prim,
     hdaemonize,
-    missingh,
+    MissingH,
     network,
     process,
     regex-posix,
