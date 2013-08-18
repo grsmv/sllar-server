@@ -34,10 +34,12 @@ Executable sllar-server
     directory,
     ghc-prim,
     hdaemonize,
+    missingh,
     network,
     process,
     regex-posix,
     tar,
+    temporary,
     unix,
     yaml
 
