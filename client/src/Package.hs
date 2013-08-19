@@ -27,6 +27,7 @@ import Network.HTTP.Conduit
 import Network.HTTP.Types
 import System.Directory
 import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.ByteString.Base64 as Base64 (encode)
 
 data Package = Package { name :: String, version :: String } deriving (Show, Generic)
@@ -191,23 +192,22 @@ sendPackage repoUrl packagePath = do
                            , ("tarName", BS.pack $ last packagePathSplitted)
                            , ("tarBody", Base64.encode fileContents) ]}
 
-    -- possible error - NoResponseDataReceived
-    -- debug
-    do res <- withManager $ httpLbs request
-       let Status code message = responseStatus res
-       putStrLn $ "Sllar package successfully published with message " ++ show message
+    onException (do res <- withManager $ httpLbs request
+                    let Status code status = responseStatus res
+                        body' = BL.unpack $ responseBody res
+                        (p, f) = (putStrLn, failDown) -- shortcuts
 
-    --onException (do res <- withManager $ httpLbs request
-    --                let Status code message = responseStatus res
+                    if code == 200 && status == "OK"
+                       then case body' of
+                              "ok" ->               p "Sllar package successfully published"
+                              "version_exists" ->   f "Same version already exists. Increase it."
+                              "incorrect_config" -> f "Incorrect <package_name>.sllar file"
+                              "no_config" ->        f "No <package_name>.sllar file"
+                              _ ->                  f "Tack, ni bröt internet"
 
-    --                -- todo: case message ("published", "version exists", "incorrect data")
-    --                -- todo: if OK - refresh information about packages from repos
-    --                if code == 200 -- && message == "OK"
-    --                   then putStrLn $ "Sllar package successfully published with message " ++ show message
-
-    --                   -- todo: show failure reason
-    --                   else failDown "Package publishing failed")
-    --            (failDown $ "Repository " ++ repoUrl ++ " isn't available")
+                       -- todo: show failure reason
+                       else failDown "Package publishing failed")
+                (failDown $ "Repository " ++ repoUrl ++ " isn't available")
 
 
 --

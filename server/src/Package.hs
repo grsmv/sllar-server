@@ -121,8 +121,8 @@ publish options = do
                      unless doesPackageNameFolderExists $ createDirectory packageFolder
 
                      copyFile tmpFile package
-                     return "OK"
+                     return "ok"
 
-                   else return "VERSION_ALREADY_EXISTS"
-               Nothing -> return "INCORRECT_SLLAR_FILE"
-           else return "NO_SLLAR_FILE"
+                   else return "version_exists"
+               Nothing -> return "incorrect_config"
+           else return "no_config"

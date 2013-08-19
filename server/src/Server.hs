@@ -42,7 +42,7 @@ instance Show Request where
 --
 start :: IO ()
 start =
-  -- daemonize $ -- debug
+   daemonize $
     withSocketsDo $ do
 
       -- getting data from server's config
