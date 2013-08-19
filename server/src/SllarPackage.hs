@@ -26,5 +26,5 @@ instance FromJSON SllarPackage
 -- Input: ByteString with *.sllar file contents
 -- Output: instance of type SllarPackage or nothing
 --
-packageInfo :: BS.ByteString -> Maybe SllarPackage
-packageInfo s = decode s :: Maybe SllarPackage
+packageInfo :: BS.ByteString -> IO (Maybe SllarPackage)
+packageInfo s = return (decode s :: Maybe SllarPackage)

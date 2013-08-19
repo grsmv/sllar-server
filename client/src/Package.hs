@@ -191,17 +191,23 @@ sendPackage repoUrl packagePath = do
                            , ("tarName", BS.pack $ last packagePathSplitted)
                            , ("tarBody", Base64.encode fileContents) ]}
 
-    onException (do res <- withManager $ httpLbs request
-                    let Status code message = responseStatus res
+    -- possible error - NoResponseDataReceived
+    -- debug
+    do res <- withManager $ httpLbs request
+       let Status code message = responseStatus res
+       putStrLn $ "Sllar package successfully published with message " ++ show message
 
-                    -- todo: case message ("published", "version exists", "incorrect data")
-                    -- todo: if OK - refresh information about packages from repos
-                    if code == 200 && message == "OK"
-                       then putStrLn "Sllar package successfully published"
+    --onException (do res <- withManager $ httpLbs request
+    --                let Status code message = responseStatus res
 
-                       -- todo: show failure reason
-                       else failDown "Package publishing failed")
-                (failDown $ "Repository " ++ repoUrl ++ " isn't available")
+    --                -- todo: case message ("published", "version exists", "incorrect data")
+    --                -- todo: if OK - refresh information about packages from repos
+    --                if code == 200 -- && message == "OK"
+    --                   then putStrLn $ "Sllar package successfully published with message " ++ show message
+
+    --                   -- todo: show failure reason
+    --                   else failDown "Package publishing failed")
+    --            (failDown $ "Repository " ++ repoUrl ++ " isn't available")
 
 
 --

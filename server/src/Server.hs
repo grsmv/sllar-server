@@ -17,12 +17,16 @@ import System.Process (system)
 import System.Posix.Process (getProcessID)
 import System.Posix.Daemonize (daemonize)
 
-data Request     = Request { rtype :: RequestType
-                           , path :: String
-                           , options :: [(String, String)] }
+data Request = Request
+             { rtype :: RequestType
+             , path :: String
+             , options :: [(String, String)]
+             }
 
-data Response    = Response { body :: String
-                            , restype :: String }
+data Response = Response
+              { body :: String
+              , restype :: String
+              }
 
 data RequestType = GET | POST deriving (Show, Read)
 
@@ -38,7 +42,7 @@ instance Show Request where
 --
 start :: IO ()
 start =
-  daemonize $
+  -- daemonize $ -- debug
     withSocketsDo $ do
 
       -- getting data from server's config
@@ -46,7 +50,7 @@ start =
       let port' = port $ fromMaybe (Config 5000) config'
       sock <- listenOn $ PortNumber (fromInteger port')
 
-      forkIO writePid
+      _ <- forkIO writePid
 
       forever $ do
         (handle, _, _) <- accept sock

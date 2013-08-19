@@ -23,8 +23,6 @@ main = do
         "stop"     -> Server.stop
         "update"   -> putStrLn "update info"
         "env"      -> env
-        "path"     -> do path <- getDataFileName "resources/packages/"
-                         putStrLn path
         "help"     -> putStrLn "help"
         _          -> putStrLn "help"
 
