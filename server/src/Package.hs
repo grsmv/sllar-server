@@ -1,6 +1,9 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
+-- todo: rename this module to "PackageInformation"
+-- todo: rename type to "PackageInformation"
+
 module Package (fromJson, toJson, publish) where
 
 -- Sllar
@@ -64,68 +67,3 @@ fromJson s = decode (BL.pack s) :: Maybe [Package]
 --
 toJson :: [Package] -> BL.ByteString
 toJson = encode
-
-
---
--- Recieving a package, testing it's correctness and storing it
--- Input: list of options as tuples
--- Output: action result
--- TODO: move this function to SllarPackage
---
-publish :: [(String, String)] -> IO String
-publish options = do
-    let value k = fromMaybe "" $ lookup k options
-        tarName = value "tarName"
-        tarBody = Base64.decodeLenient $ BS.pack (value "tarBody")
-        ext = ".sllar.tar"
-        tmpName = H.replace ext "" tarName
-
-    tmp <- getDataFileName "tmp"
-    packages <- getDataFileName "packages"
-
-    -- unpacking and examining package
-    withTempDirectory tmp tmpName $ \tmpDir ->         -- <tmp>/<package_name>.<rand>
-      withTempFile tmp tarName $ \tmpFile handle -> do -- <tmp>/<package_name>.sllar.tar.<rand>
-
-        -- writing package contents
-        hPutStr handle (BS.unpack tarBody)
-        hClose handle
-
-        -- extracting data from tar
-        extract tmpDir tmpFile
-
-        -- examining sllar file existence
-        files <- getDirectoryContents tmpDir
-        let sllarFiles = filter (".sllar" `isInfixOf`) files
-
-        if not . null $ sllarFiles
-           then do
-             -- check version and name availability in *.sllar
-             sllarFileData <- BS.readFile (unslice_path [tmpDir, head sllarFiles]) >>= SP.packageInfo
-
-             -- examining correctness of *.sllar file
-             case sllarFileData of
-               Just conf -> do
-
-                 -- checking if version not available
-                 let confName = fromMaybe "" $ SP.name conf
-                     confVersion = fromMaybe "" $ SP.name conf
-                     packageName = confName ++ "-" ++ confVersion ++ ext
-                     package = unslice_path [packages, confName, packageName]
-
-                 versionAvailable <- doesFileExist package
-
-                 if not versionAvailable
-                   then do
-                     -- check if parent folder available, create if not,
-                     -- and copy file into package holder
-                     let packageFolder = unslice_path [packages, confName]
-                     doesPackageNameFolderExists <- doesDirectoryExist packageFolder
-                     unless doesPackageNameFolderExists $ createDirectory packageFolder
-
-                     copyFile tmpFile package
-                     return "ok"
-
-                   else return "version_exists"
-               Nothing -> return "incorrect_config"
-           else return "no_config"
