@@ -71,7 +71,7 @@ stop = do
     tmpFolder <- getDataFileName "tmp/"
     let tmpFilePath = tmpFolder ++ "sllar-server.pid"
     pid <- readFile tmpFilePath
-    system $ "kill " ++ pid
+    _ <- system $ "kill " ++ pid
     removeFile tmpFilePath
     putStrLn "sllar-server was stopped"
 

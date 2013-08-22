@@ -43,4 +43,4 @@ Executable sllar-server
     unix,
     yaml
 
-  ghc-options:      -Wall -fwarn-tabs -threaded -fhpc
+  ghc-options:      -Wall -fwarn-tabs -threaded

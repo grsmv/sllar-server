@@ -70,6 +70,7 @@ toJson = encode
 -- Recieving a package, testing it's correctness and storing it
 -- Input: list of options as tuples
 -- Output: action result
+-- TODO: move this function to SllarPackage
 --
 publish :: [(String, String)] -> IO String
 publish options = do
@@ -107,8 +108,10 @@ publish options = do
                Just conf -> do
 
                  -- checking if version not available
-                 let packageName = SP.name conf ++ "-" ++ SP.version conf ++ ext
-                     package = unslice_path [packages, SP.name conf, packageName]
+                 let confName = fromMaybe "" $ SP.name conf
+                     confVersion = fromMaybe "" $ SP.name conf
+                     packageName = confName ++ "-" ++ confVersion ++ ext
+                     package = unslice_path [packages, confName, packageName]
 
                  versionAvailable <- doesFileExist package
 
@@ -116,7 +119,7 @@ publish options = do
                    then do
                      -- check if parent folder available, create if not,
                      -- and copy file into package holder
-                     let packageFolder = unslice_path [packages, SP.name conf]
+                     let packageFolder = unslice_path [packages, confName]
                      doesPackageNameFolderExists <- doesDirectoryExist packageFolder
                      unless doesPackageNameFolderExists $ createDirectory packageFolder
 
