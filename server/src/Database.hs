@@ -1,4 +1,4 @@
-module Database where
+module Database (create) where
 
 import Database.SQLite
 import qualified Paths_sllar_server as Paths
@@ -18,6 +18,7 @@ o = [IsNullable True]  -- optional
 --
 dataTables :: [(String, [(String, SQLType, [Clause])])]
 dataTables = [ ("packages",
+               --  column name     column type                additional properties
                  [ ("id",          SQLInt NORMAL False False, [PrimaryKey True])
                  , ("name",        SQLVarChar 200,            m)
                  , ("description", SQLVarChar 1000,           m)
@@ -39,8 +40,7 @@ dataTables = [ ("packages",
 --
 create :: IO ()
 create = do
-    dbFile <- Paths.getDataFileName "database.sqlite"
-    handle <- openConnection dbFile
+    handle <- Paths.getDataFileName "database.sqlite" >>= openConnection
     mapM_ (\(name, columns) ->
         defineTable handle
           VirtualTable
