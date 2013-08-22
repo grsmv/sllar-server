@@ -22,14 +22,12 @@ data ExposedPackage = ExposedPackage
 
 instance ToJSON ExposedPackage
 
-
 data Version = Version
              { version :: String
              , date :: String }
              deriving (Show, Generic)
 
 instance ToJSON Version
-
 
 --
 -- Processing values of Package type into JSON

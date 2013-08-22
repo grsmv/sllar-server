@@ -38,6 +38,7 @@ Executable sllar-server
     network,
     process,
     regex-posix,
+    sqlite,
     tar,
     temporary,
     unix,
