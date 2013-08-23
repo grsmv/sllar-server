@@ -21,7 +21,7 @@ data Request = Request
              { rtype :: RequestType
              , path :: String
              , options :: [(String, String)]
-             }
+             } deriving (Show)
 
 data Response = Response
               { body :: String
@@ -29,9 +29,6 @@ data Response = Response
               }
 
 data RequestType = GET | POST deriving (Show, Read)
-
-instance Show Request where
-    show r = "Request {" ++ show (rtype r) ++ " " ++ path r ++ "}"
 
 {------------------------------------------------------------------------------
                                 Public API

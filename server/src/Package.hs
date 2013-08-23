@@ -62,9 +62,7 @@ info s = return (decode (BS.pack (correct (BS.unpack s))) :: Maybe Package)
 defaultFields :: [String]
 defaultFields = List.replace ["versions"] ["version"] fields
     where fields = constrFields . toConstr $ package
-
-          -- TODO: change this crap
-          package = Package "" "" "" "" j j j j j
+          package = Package "" "" "" "" j j j j j  -- todo: fix this crap
           j = Just ""
 
 
