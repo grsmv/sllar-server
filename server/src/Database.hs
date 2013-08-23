@@ -1,8 +1,12 @@
 -- Bridge to SQLite database, which is used for storing
 -- information about packages. Also can create new database.
 --     http://www.sqlite.org/foreignkeys.html
+--
 -- NB: `PRAGMA foreign_keys = ON` for enabling foreign keys support
--- TODO: add `uploadDate` for packages and versions
+-- NB: selecting all packages with most recent versions:
+--       select * from packages
+--         join versions on versions.package_id = packages.id
+--         order by versions.uploaded_at desc limit 1
 
 module Database (create) where
 
