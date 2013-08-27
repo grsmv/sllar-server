@@ -26,7 +26,6 @@ Executable sllar-server
   other-modules:    Paths_sllar_server
 
   Build-depends:
-    MissingH,
     aeson,
     ansi-terminal,
     base,
@@ -36,10 +35,12 @@ Executable sllar-server
     directory,
     ghc-prim,
     hdaemonize,
+    MissingH,
     network,
     process,
     regex-posix,
     sqlite,
+    syb,
     tar,
     temporary,
     unix,
