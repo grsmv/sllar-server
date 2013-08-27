@@ -17,12 +17,14 @@ module Package
     , correct ) where
 
 -- Sllar
+import qualified Database
 import qualified Paths_sllar_server as Paths
 
 -- System
 import Codec.Archive.Tar (extract)
 import Control.Monad
 import Data.Data
+import Data.DateTime (getCurrentTime)
 import Data.List
 import Data.Maybe (fromMaybe)
 import Data.Yaml
@@ -189,8 +191,50 @@ publish options = do
                      unless doesPackageNameFolderExists $ createDirectory packageFolder
 
                      copyFile tmpFile package
+                     savePackageInDatabase conf
                      return "ok"
 
                    else return "version_exists"
                Nothing -> return "incorrect_config"
            else return "no_config"
+
+
+
+--
+-- Creating package in the Database, or updatimg Package version if package already
+-- presented in the database
+-- Input: Package value
+-- todo: report errors during ratabase update
+--
+savePackageInDatabase :: Package -> IO ()
+savePackageInDatabase pkg = withConnection $ \h -> do
+
+    currentDateTime <- getCurrentTime
+
+    let packageInfo = Package.toTuple pkg
+
+        -- updatimf `versions` table with info from package
+        createVersion packageId =
+          insertRow h "versions" [
+              ("version",     fromMaybe "" $ lookup "version" packageInfo),
+              ("package_id",  show packageId),
+              ("uploaded_at", show currentDateTime)]
+
+    ls <- execStatement h $ "select id from packages where name='" ++ Package.name pkg ++ "'"
+
+    case ls :: Either String [[Row Value]] of
+        Right [row] ->
+
+            -- check if package already presented with lower version
+            case length row of
+
+                -- if not exists - create package and version
+                0 -> do insertRow h "packages" (filter (\(k, _) -> k /= "version") packageInfo)
+                        rowId <- getLastRowID h
+                        createVersion rowId
+
+                -- otherwise - create version
+                _ -> do let Just (Int id') = lookup "id" $ head row
+                        createVersion id'
+
+    return ()

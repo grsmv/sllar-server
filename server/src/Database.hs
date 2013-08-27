@@ -8,18 +8,15 @@
 --         from packages p join versions v on v.package_id = p.id
 --         order by v.uploaded_at desc limit 1
 
-module Database
-    ( create
-    , createPackage) where
+module Database (create) where
 
 -- sllar
-import qualified Package
+import Examination
 
 -- system
-import Data.Maybe (fromMaybe)
 import Control.Exception (bracket)
+import Control.Monad (unless)
 import Database.SQLite
-import Data.DateTime (getCurrentTime)
 import qualified Paths_sllar_server as Paths
 
 
@@ -50,12 +47,26 @@ dataTables =
 
 
 --
+-- Cheking database file existence
+--
+withDatabase :: IO () -> IO ()
+withDatabase f = do
+  database <- Paths.getDataFileName "database.sqlite"
+  doesDatabaseExists <- checkFile database
+  unless doesDatabaseExists create
+  f
+
+
+--
 -- Wrapping each SQLite-related action to a connection acquiring-resource releasing cycle
 -- Input: function, that needed to be evaluated between opening and closing connection
 --
 withConnection :: (SQLiteHandle -> IO ()) -> IO ()
-withConnection = bracket (Paths.getDataFileName "database.sqlite" >>= openConnection)
-                         closeConnection
+withConnection f =
+  withDatabase $
+    bracket (Paths.getDataFileName "database.sqlite" >>= openConnection)
+            closeConnection
+            f
 
 
 --
@@ -73,38 +84,3 @@ create =
               , tabUsing = "FTS3" }
         ) dataTables
       return ()
-
-
---
--- Creating package in the Database
---
-createPackage :: Package.Package -> IO ()
-createPackage pkg = withConnection $ \h -> do
-
-    currentDateTime <- getCurrentTime
-
-    let packageInfo = Package.toTuple pkg
-        createVersion packageId =
-          insertRow h "versions" [
-              ("version",     fromMaybe "" $ lookup "version" packageInfo),
-              ("package_id",  show packageId),
-              ("uploaded_at", show currentDateTime)]
-
-    ls <- execStatement h $ "select id from packages where name='" ++ Package.name pkg ++ "'"
-
-    case ls :: Either String [[Row Value]] of
-        Right [row] ->
-
-            -- check if package already presented with lower version
-            case length row of
-
-                -- if not exists - create package and version
-                0 -> do insertRow h "packages" (filter (\(k, _) -> k /= "version") packageInfo)
-                        rowId <- getLastRowID h
-                        createVersion rowId
-
-                -- otherwise - create version
-                _ -> do let Just (Int id') = lookup "id" $ head row
-                        createVersion id'
-
-    return ()
