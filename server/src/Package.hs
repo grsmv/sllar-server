@@ -26,16 +26,16 @@ import Data.Data
 import Data.List
 import Data.Maybe (fromMaybe)
 import Data.Yaml
+import qualified Data.ByteString.Base64 as Base64 (decodeLenient)
+import qualified Data.ByteString.Char8 as BS
+import qualified Data.Generics as G
+import qualified Data.List.Utils as List
+import qualified Data.String.Utils as String
 import GHC.Generics
 import System.Directory
 import System.IO (hPutStr, hClose)
 import System.IO.Temp (withTempDirectory, withTempFile)
 import System.Path.NameManip (unslice_path)
-import qualified Data.Generics as G
-import qualified Data.ByteString.Base64 as Base64 (decodeLenient)
-import qualified Data.ByteString.Char8 as BS
-import qualified Data.List.Utils as List
-import qualified Data.String.Utils as String
 
 data Package = Package
              -- mandatory fields

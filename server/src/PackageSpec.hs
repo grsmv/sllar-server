@@ -26,13 +26,16 @@ main = hspec $ do
         it "should return fields of Package type" $
             defaultFields `shouldBe` ["name", "description", "author", "version", "maintainer", "license", "copyright", "homepage", "tracker"]
 
+
     describe "Package.unusedFields" $
         it "should return fields, that not used in Sllar file" $
             unusedFields exampleSllarFileContents defaultFields `shouldBe` ["maintainer", "license", "copyright", "homepage", "tracker"]
 
+
     describe "Package.correct" $
         it "should add fields, that wasn't pesent in Sllar file, uploaded from client" $
             correct exampleSllarFileContents `shouldBe` exampleSllarFileContents ++ "maintainer: \nlicense: \ncopyright: \nhomepage: \ntracker: \n"
+
 
     describe "Package.toTuple" $
         it "should present Package as tuple" $ do

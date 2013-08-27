@@ -8,10 +8,12 @@
 --         from packages p join versions v on v.package_id = p.id
 --         order by v.uploaded_at desc limit 1
 
-module Database (create{-, createPackage-}) where
+module Database
+    ( create
+    , createPackage) where
 
 -- sllar
---import qualified Package
+import qualified Package
 
 -- system
 import Control.Exception (bracket)
@@ -72,8 +74,14 @@ create =
 
 
 --
+-- Creating package in the Database
 --
---
---createPackage :: Package -> IO ()
---createPackage pkg = withConnection $
+createPackage :: Package.Package -> IO ()
+createPackage pkg = withConnection $ \handle -> do
+  _ <- insertRow handle "packages" (Package.toTuple pkg)
+  return ()
 
+  -- split package data to Package info and version info
+  -- check if package already presented with lower version
+  -- if presented - update version
+  -- if not - record Package info and version info
