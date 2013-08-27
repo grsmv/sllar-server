@@ -41,7 +41,7 @@ data Package = Package
              , copyright
              , homepage
              , tracker :: Maybe String
-             } deriving (Data, Typeable, Show, Generic)
+             } deriving (Data, Typeable, Show, Generic, Eq)
 
 instance FromJSON Package
 
@@ -72,8 +72,8 @@ defaultFields = List.replace ["versions"] ["version"] fields
 -- Input: data, all fields thar should be presented
 -- Output: fields, that not presented in input data
 --
-unusedFileds :: String -> [String] -> [String]
-unusedFileds str =
+unusedFields :: String -> [String] -> [String]
+unusedFields str =
     filter (\e -> not $ (e ++ ":") `isInfixOf` String.replace " " "" str)
 
 
@@ -84,8 +84,8 @@ unusedFileds str =
 -- Output: corrected data
 --
 correct :: String -> String
-correct text = foldl (\acc e -> acc ++ e ++ ":\n") text fields
-               where fields = unusedFileds text defaultFields
+correct text = foldl (\acc e -> acc ++ e ++ ": \n") text fields
+               where fields = unusedFields text defaultFields
 
 
 --

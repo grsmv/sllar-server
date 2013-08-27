@@ -4,9 +4,9 @@
 --
 -- NB: `PRAGMA foreign_keys = ON` for enabling foreign keys support
 -- NB: selecting all packages with most recent versions:
---       select * from packages
---         join versions on versions.package_id = packages.id
---         order by versions.uploaded_at desc limit 1
+--       select p.id, p.name, p.description, v.version, v.uploaded_at
+--         from packages p join versions v on v.package_id = p.id
+--         order by v.uploaded_at desc limit 1
 
 module Database (create) where
 
