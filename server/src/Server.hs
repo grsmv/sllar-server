@@ -4,6 +4,7 @@ module Server ( start
 -- Sllar
 import Config
 import Package (publish)
+import qualified ExposedPackage
 import Paths_sllar_server
 
 -- System
@@ -84,8 +85,8 @@ router request = do
     let Request rtype' path' options' = request
         (html, json, text) = ("text/html", "application/json", "text/plain")
         (bodyIO, respType) = case (rtype', path') of
-                                  (GET,    "/packages") -> (return "[{'name':'A'}]", json)
-                                  (POST,   "/publish")  -> (publish options',    text)
+                                  (GET,    "/packages") -> (ExposedPackage.allPackagesAsJson, json)
+                                  (POST,   "/publish")  -> (publish options',                 text)
 
                                   -- everything else, including index
                                   _ -> (getDataFileName "html/index.html" >>= readFile, html)

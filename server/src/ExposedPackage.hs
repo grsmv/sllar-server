@@ -3,6 +3,7 @@
 
 module ExposedPackage
     ( allPackages
+    , allPackagesAsJson
     , ExposedPackage(..)
     , Version(..)) where
 
@@ -13,11 +14,11 @@ import Database
 import Data.Maybe (fromMaybe)
 import Data.Aeson
 import GHC.Generics
---import qualified Data.ByteString.Lazy.Char8 as BL
+import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Database.SQLite as SQLite
 
 data ExposedPackage = ExposedPackage
-                    { pId :: Int
+                    { packageId :: Int
                     , name
                     , description
                     , author
@@ -32,46 +33,64 @@ data ExposedPackage = ExposedPackage
 instance ToJSON ExposedPackage
 
 data Version = Version
-             { version :: String
-             , date :: String }
+             { version
+             , uploadedAt :: String }
              deriving (Show, Generic)
 
 instance ToJSON Version
+
 
 --
 -- Processing values of Package type into JSON
 -- Input: list of packages
 -- Output: json output
 --
---toJson :: [ExposedPackage] -> BL.ByteString
---toJson = encode
-
+allPackagesAsJson :: IO String
+allPackagesAsJson = do
+    packages <- allPackages
+    return $ BL.unpack (encode packages)
 
 
 --
 --
 --
-allPackages :: IO () -- [ExposedPackage]
+allPackages :: IO [ExposedPackage]
 allPackages =
     withConnection $ \h -> do
         ls <- SQLite.execStatement h "select * from packages order by name"
 
         case ls :: Either String [[SQLite.Row SQLite.Value]] of
-            Right [rows] -> do let x = map (unwrap . fromMaybe (SQLite.Int 0) . lookup "id") rows
-                                   unwrap (SQLite.Int a) = a
-                               print x
+            Right [rows] ->
+                do let extractInt (SQLite.Int a) = a
+                       extractText (SQLite.Text a) = a
 
-                                --lookup' k xs = fromMaybe "" (lookup k xs)
-                                --Just SQLite.Text a = producePackage rows
-                                --producePackage xs = ExposedPackage { pId=        SQLite.Int  (fromMaybe 0 (lookup "id" xs))
-                                --                                   , name=       SQLite.Text (lookup' "name" xs)
-                                --                                   , description=SQLite.Text (lookup' "description" xs)
-                                --                                   , author=     SQLite.Text (lookup' "author" xs)
-                                --                                   , maintainer= SQLite.Text (lookup' "maintainer" xs)
-                                --                                   , license=    SQLite.Text (lookup' "license" xs)
-                                --                                   , copyright=  SQLite.Text (lookup' "copyright" xs)
-                                --                                   , homepage=   SQLite.Text (lookup' "homepage" xs)
-                                --                                   , tracker=    SQLite.Text (lookup' "tracker" xs)
-                                --                                   , versions=[] }
+                       -- looking up for value of a specific type in a record (i - Int, t - Text)
+                       i k = extractInt . fromMaybe (SQLite.Int 0) . lookup k
+                       t k = extractText . fromMaybe (SQLite.Text "") . lookup k
+                       pId row = fromIntegral $ i "id" row
 
--- { pId=1, name="", description="", author="", maintainer="", license="", copyright="", homepage="", tracker="", versions=[] }
+                       getVersionsFor :: Int -> IO [Version]
+                       getVersionsFor packageId' = do
+                           versionsQuery <- SQLite.execStatement h $ "select * from versions where package_id = " ++ show packageId' ++ " order by uploaded_at"
+                           let produceVersionsFrom row = Version { version = t "version" row
+                                                                 , uploadedAt = t "uploaded_at" row}
+
+                           case versionsQuery :: Either String [[SQLite.Row SQLite.Value]] of
+                               Right [rows'] ->
+                                   return $ map produceVersionsFrom rows'
+
+                       --
+                       producePackageFrom row = do
+                       packageVersions <- getVersionsFor $ pId row
+                       return ExposedPackage { packageId   = pId row
+                                       , name        = t "name" row
+                                       , description = t "description" row
+                                       , author      = t "author" row
+                                       , maintainer  = t "maintainer" row
+                                       , license     = t "license" row
+                                       , copyright   = t "copyright" row
+                                       , homepage    = t "homepage" row
+                                       , tracker     = t "tracker" row
+                                       , versions    = packageVersions }
+
+                   mapM producePackageFrom rows

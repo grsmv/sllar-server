@@ -4,7 +4,7 @@
 --
 -- NB: `PRAGMA foreign_keys = ON` for enabling foreign keys support
 
-module Database (create, withConnection) where
+module Database (withConnection) where
 
 -- system
 import Control.Exception (bracket)
@@ -45,27 +45,17 @@ dataTables =
 
 
 --
--- Wrapper, that checks SQLite database existence and creates one if not
--- Input: function, that needs to wrapped
---
-withDatabase :: IO () -> IO ()
-withDatabase f = do
-  db <- Paths.getDataFileName dbName
-  doesDatabaseExists <- doesFileExist db
-  unless doesDatabaseExists create
-  f
-
-
---
--- Wrapping each SQLite-related action to a connection acquiring-resource releasing cycle
+-- Wrapping each SQLite-related action to a connection acquiring-resource releasing cycle.
+-- Also checks SQLite database existence and creates new one if not.
 -- Input: function, that needed to be evaluated between opening and closing connection
 --
-withConnection :: (SQLiteHandle -> IO ()) -> IO ()
-withConnection f =
-  withDatabase $
-    bracket (Paths.getDataFileName dbName >>= openConnection)
+withConnection :: (SQLiteHandle -> IO a) -> IO a
+withConnection =
+    bracket (do db <- Paths.getDataFileName dbName
+                doesDatabaseExists <- doesFileExist db
+                unless doesDatabaseExists create
+                Paths.getDataFileName dbName >>= openConnection)
             closeConnection
-            f
 
 
 --
