@@ -8,16 +8,18 @@
 --         from packages p join versions v on v.package_id = p.id
 --         order by v.uploaded_at desc limit 1
 
-module Database (create) where
-
--- sllar
-import Examination
+module Database (create, withConnection) where
 
 -- system
 import Control.Exception (bracket)
 import Control.Monad (unless)
 import Database.SQLite
+import System.Directory (doesFileExist)
 import qualified Paths_sllar_server as Paths
+
+
+dbName :: String
+dbName = "database.sqlite"
 
 
 --
@@ -47,12 +49,13 @@ dataTables =
 
 
 --
--- Cheking database file existence
+-- Wrapper, that checks SQLite database existence and creates one if not
+-- Input: function, that needs to wrapped
 --
 withDatabase :: IO () -> IO ()
 withDatabase f = do
-  database <- Paths.getDataFileName "database.sqlite"
-  doesDatabaseExists <- checkFile database
+  db <- Paths.getDataFileName dbName
+  doesDatabaseExists <- doesFileExist db
   unless doesDatabaseExists create
   f
 
@@ -64,7 +67,7 @@ withDatabase f = do
 withConnection :: (SQLiteHandle -> IO ()) -> IO ()
 withConnection f =
   withDatabase $
-    bracket (Paths.getDataFileName "database.sqlite" >>= openConnection)
+    bracket (Paths.getDataFileName dbName >>= openConnection)
             closeConnection
             f
 
@@ -73,14 +76,13 @@ withConnection f =
 -- Creating sqlite database from scratch
 --
 create :: IO ()
-create =
-    withConnection $ \handle -> do
-      mapM_ (\(name, columns) ->
-          defineTable handle
-            VirtualTable
-              { tabName = name
-              , tabColumns = map (\(n, t, c) -> Column n t c) columns
-              , tabConstraints = []
-              , tabUsing = "FTS3" }
-        ) dataTables
-      return ()
+create = do
+    handle <- Paths.getDataFileName dbName >>= openConnection
+    mapM_ (\(name, columns) ->
+         defineTable handle
+           Table
+             { tabName = name
+             , tabColumns = map (\(n, t, c) -> Column n t c) columns
+             , tabConstraints = [] }
+       ) dataTables
+    return ()

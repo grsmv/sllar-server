@@ -39,7 +39,7 @@ data RequestType = GET | POST deriving (Show, Read)
 --
 start :: IO ()
 start =
-   daemonize $
+   --daemonize $
     withSocketsDo $ do
 
       -- getting data from server's config

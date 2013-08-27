@@ -17,7 +17,7 @@ module Package
     , correct ) where
 
 -- Sllar
-import qualified Database
+import Database
 import qualified Paths_sllar_server as Paths
 
 -- System
@@ -28,6 +28,7 @@ import Data.DateTime (getCurrentTime)
 import Data.List
 import Data.Maybe (fromMaybe)
 import Data.Yaml
+import qualified Database.SQLite as SQLite
 import qualified Data.ByteString.Base64 as Base64 (decodeLenient)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.Generics as G
@@ -215,26 +216,26 @@ savePackageInDatabase pkg = withConnection $ \h -> do
 
         -- updatimf `versions` table with info from package
         createVersion packageId =
-          insertRow h "versions" [
+          SQLite.insertRow h "versions" [
               ("version",     fromMaybe "" $ lookup "version" packageInfo),
               ("package_id",  show packageId),
               ("uploaded_at", show currentDateTime)]
 
-    ls <- execStatement h $ "select id from packages where name='" ++ Package.name pkg ++ "'"
+    ls <- SQLite.execStatement h $ "select id from packages where name='" ++ Package.name pkg ++ "'"
 
-    case ls :: Either String [[Row Value]] of
+    case ls :: Either String [[SQLite.Row SQLite.Value]] of
         Right [row] ->
 
             -- check if package already presented with lower version
             case length row of
 
                 -- if not exists - create package and version
-                0 -> do insertRow h "packages" (filter (\(k, _) -> k /= "version") packageInfo)
-                        rowId <- getLastRowID h
+                0 -> do SQLite.insertRow h "packages" (filter (\(k, _) -> k /= "version") packageInfo)
+                        rowId <- SQLite.getLastRowID h
                         createVersion rowId
 
                 -- otherwise - create version
-                _ -> do let Just (Int id') = lookup "id" $ head row
+                _ -> do let Just (SQLite.Int id') = lookup "id" $ head row
                         createVersion id'
 
     return ()

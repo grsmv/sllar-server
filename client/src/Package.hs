@@ -192,22 +192,38 @@ sendPackage repoUrl packagePath = do
                            , ("tarName", BS.pack $ last packagePathSplitted)
                            , ("tarBody", Base64.encode fileContents) ]}
 
-    onException (do res <- withManager $ httpLbs request
-                    let Status code status = responseStatus res
-                        body' = BL.unpack $ responseBody res
-                        (p, f) = (putStrLn, failDown) -- shortcuts
+    res <- withManager $ httpLbs request
+    let Status code status = responseStatus res
+        body' = BL.unpack $ responseBody res
+        (p, f) = (putStrLn, failDown) -- shortcuts
 
-                    if code == 200 && status == "OK"
-                       then case body' of
-                              "ok" ->               p "Sllar package successfully published"
-                              "version_exists" ->   f "Same version already exists. Increase it."
-                              "incorrect_config" -> f "Incorrect <package_name>.sllar file"
-                              "no_config" ->        f "No <package_name>.sllar file"
-                              _ ->                  f "Tack, ni bröt internet"
+    if code == 200 && status == "OK"
+       then case body' of
+              "ok" ->               p "Sllar package successfully published"
+              "version_exists" ->   f "Same version already exists. Increase it."
+              "incorrect_config" -> f "Incorrect <package_name>.sllar file"
+              "no_config" ->        f "No <package_name>.sllar file"
+              _ ->                  f "Tack, ni bröt internet"
 
-                       -- todo: show failure reason
-                       else failDown "Package publishing failed")
-                (failDown $ "Repository " ++ repoUrl ++ " isn't available")
+       -- todo: show failure reason
+       else failDown "Package publishing failed"
+
+    -- onException (do res <- withManager $ httpLbs request
+    --                 let Status code status = responseStatus res
+    --                     body' = BL.unpack $ responseBody res
+    --                     (p, f) = (putStrLn, failDown) -- shortcuts
+
+    --                 if code == 200 && status == "OK"
+    --                    then case body' of
+    --                           "ok" ->               p "Sllar package successfully published"
+    --                           "version_exists" ->   f "Same version already exists. Increase it."
+    --                           "incorrect_config" -> f "Incorrect <package_name>.sllar file"
+    --                           "no_config" ->        f "No <package_name>.sllar file"
+    --                           _ ->                  f "Tack, ni bröt internet"
+
+    --                    -- todo: show failure reason
+    --                    else failDown "Package publishing failed")
+    --             (failDown $ "Repository " ++ repoUrl ++ " isn't available")
 
 
 --
