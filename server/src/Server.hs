@@ -23,10 +23,7 @@ data Request = Request
              , options :: [(String, String)]
              } deriving (Show)
 
-data Response = Response
-              { body :: String
-              , restype :: String
-              }
+data Response = Response { body, restype :: String }
 
 data RequestType = GET | POST deriving (Show, Read)
 
@@ -39,7 +36,7 @@ data RequestType = GET | POST deriving (Show, Read)
 --
 start :: IO ()
 start =
-   --daemonize $
+   daemonize $
     withSocketsDo $ do
 
       -- getting data from server's config
