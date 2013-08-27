@@ -1,12 +1,20 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE RankNTypes #-}
 
 -- This module provides support for reading YAML-based contents
 -- of *.sllar files, that coming with all Sllar packages.
 -- It's used during reading and verification of incoming package.
 
-module Package where
+module Package
+    ( Package(..)
+    , info
+    , toTuple
+    , publish
+    , defaultFields
+    , unusedFields
+    , correct ) where
 
 -- Sllar
 import qualified Paths_sllar_server as Paths
@@ -23,6 +31,7 @@ import System.Directory
 import System.IO (hPutStr, hClose)
 import System.IO.Temp (withTempDirectory, withTempFile)
 import System.Path.NameManip (unslice_path)
+import qualified Data.Generics as G
 import qualified Data.ByteString.Base64 as Base64 (decodeLenient)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.List.Utils as List
@@ -86,6 +95,41 @@ unusedFields str =
 correct :: String -> String
 correct text = foldl (\acc e -> acc ++ e ++ ": \n") text fields
                where fields = unusedFields text defaultFields
+
+
+--
+-- Convering value of Package to tuple
+-- Input: value of Package
+-- Output: list of key-value tuples, representing contents of package
+--
+toTuple :: Package -> [(String, String)]
+toTuple pkg =
+      map (\f -> (f, get f :: String)) mandatory ++
+      map (\f -> (f, fromMaybe "" (get f :: Maybe String))) (fields \\ mandatory)
+      where mandatory = ["name", "description", "author", "version"] -- todo: detect this dynamically
+            get f = getField f pkg
+            fields = constrFields . toConstr $ pkg
+
+
+--
+-- Getting contents of a record field by field name presented as String
+-- Input: key as String, record
+-- Output: Value of a field
+--
+getField :: (Data r, Typeable v) => String -> r -> v
+getField fieldName rec = gmapQi i (e `G.extQ` id) rec
+    where i = fieldName `fieldIndex` rec
+          e _ = error "type mismatch"
+
+
+--
+-- Order in range of record's fields
+-- Input: field name as String, record
+-- Output: position
+--
+fieldIndex :: (Data r) => String -> r -> Int
+fieldIndex fieldName rec =
+    fromMaybe 0 $ fieldName `elemIndex` (constrFields . toConstr $ rec)
 
 
 --

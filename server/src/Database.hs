@@ -8,8 +8,13 @@
 --         from packages p join versions v on v.package_id = p.id
 --         order by v.uploaded_at desc limit 1
 
-module Database (create) where
+module Database (create{-, createPackage-}) where
 
+-- sllar
+--import qualified Package
+
+-- system
+import Control.Exception (bracket)
 import Database.SQLite
 import qualified Paths_sllar_server as Paths
 
@@ -41,18 +46,34 @@ dataTables =
 
 
 --
+-- Wrapping each SQLite-related action to a connection acquiring-resource releasing cycle
+-- Input: function, that needed to be evaluated between opening and closing connection
+--
+withConnection :: (SQLiteHandle -> IO ()) -> IO ()
+withConnection = bracket (Paths.getDataFileName "database.sqlite" >>= openConnection)
+                         closeConnection
+
+
+--
 -- Creating sqlite database from scratch
 --
 create :: IO ()
-create = do
-    handle <- Paths.getDataFileName "database.sqlite" >>= openConnection
-    mapM_ (\(name, columns) ->
-        defineTable handle
-          VirtualTable
-            { tabName = name
-            , tabColumns = map (\(n, t, c) -> Column n t c) columns
-            , tabConstraints = []
-            , tabUsing = "FTS3" }
-      ) dataTables
-    closeConnection handle
-    return ()
+create =
+    withConnection $ \handle -> do
+      mapM_ (\(name, columns) ->
+          defineTable handle
+            VirtualTable
+              { tabName = name
+              , tabColumns = map (\(n, t, c) -> Column n t c) columns
+              , tabConstraints = []
+              , tabUsing = "FTS3" }
+        ) dataTables
+      return ()
+
+
+--
+--
+--
+--createPackage :: Package -> IO ()
+--createPackage pkg = withConnection $
+
