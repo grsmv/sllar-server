@@ -6,7 +6,8 @@ module Package
   , publish
   , showInfo
   , initialize
-  , pack ) where
+  , pack
+  , Package(..)) where
 
 -- Sllar
 import Common
@@ -30,7 +31,13 @@ import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.ByteString.Base64 as Base64 (encode)
 
-data Package = Package { name :: String, version :: String } deriving (Show, Generic)
+-- declaring mandatory package fileds, that should be presented at *.sllar config file
+data Package = Package
+             { name
+             , description
+             , author
+             , version :: String
+             } deriving (Show, Generic)
 instance FromJSON Package
 
 
@@ -192,38 +199,23 @@ sendPackage repoUrl packagePath = do
                            , ("tarName", BS.pack $ last packagePathSplitted)
                            , ("tarBody", Base64.encode fileContents) ]}
 
-    res <- withManager $ httpLbs request
-    let Status code status = responseStatus res
-        body' = BL.unpack $ responseBody res
-        (p, f) = (putStrLn, failDown) -- shortcuts
 
-    if code == 200 && status == "OK"
-       then case body' of
-              "ok" ->               p "Sllar package successfully published"
-              "version_exists" ->   f "Same version already exists. Increase it."
-              "incorrect_config" -> f "Incorrect <package_name>.sllar file"
-              "no_config" ->        f "No <package_name>.sllar file"
-              _ ->                  f "Tack, ni bröt internet"
+    onException (do res <- withManager $ httpLbs request
+                    let Status code status = responseStatus res
+                        body' = BL.unpack $ responseBody res
+                        (p, f) = (putStrLn, failDown) -- shortcuts
 
-       -- todo: show failure reason
-       else failDown "Package publishing failed"
+                    if code == 200 && status == "OK"
+                       then case body' of
+                              "ok" ->               p "Sllar package successfully published"
+                              "version_exists" ->   f "Same version already exists. Increase it."
+                              "incorrect_config" -> f "Incorrect <package_name>.sllar file"
+                              "no_config" ->        f "No <package_name>.sllar file"
+                              _ ->                  f "Tack, ni bröt internet"
 
-    -- onException (do res <- withManager $ httpLbs request
-    --                 let Status code status = responseStatus res
-    --                     body' = BL.unpack $ responseBody res
-    --                     (p, f) = (putStrLn, failDown) -- shortcuts
-
-    --                 if code == 200 && status == "OK"
-    --                    then case body' of
-    --                           "ok" ->               p "Sllar package successfully published"
-    --                           "version_exists" ->   f "Same version already exists. Increase it."
-    --                           "incorrect_config" -> f "Incorrect <package_name>.sllar file"
-    --                           "no_config" ->        f "No <package_name>.sllar file"
-    --                           _ ->                  f "Tack, ni bröt internet"
-
-    --                    -- todo: show failure reason
-    --                    else failDown "Package publishing failed")
-    --             (failDown $ "Repository " ++ repoUrl ++ " isn't available")
+                       -- todo: show failure reason
+                       else failDown "Package publishing failed")
+                (failDown $ "Repository " ++ repoUrl ++ " isn't available")
 
 
 --
