@@ -69,6 +69,8 @@ allPackages =
                        t k = extractText . fromMaybe (SQLite.Text "") . lookup k
                        pId row = fromIntegral $ i "id" row
 
+                       -------------------------------------------------
+
                        getVersionsFor :: Int -> IO [Version]
                        getVersionsFor packageId' = do
                            versionsQuery <- SQLite.execStatement h $ "select * from versions where package_id = " ++ show packageId' ++ " order by uploaded_at"
@@ -79,18 +81,19 @@ allPackages =
                                Right [rows'] ->
                                    return $ map produceVersionsFrom rows'
 
-                       --
+                       -------------------------------------------------
+
                        producePackageFrom row = do
                        packageVersions <- getVersionsFor $ pId row
                        return ExposedPackage { packageId   = pId row
-                                       , name        = t "name" row
-                                       , description = t "description" row
-                                       , author      = t "author" row
-                                       , maintainer  = t "maintainer" row
-                                       , license     = t "license" row
-                                       , copyright   = t "copyright" row
-                                       , homepage    = t "homepage" row
-                                       , tracker     = t "tracker" row
-                                       , versions    = packageVersions }
+                                             , name        = t "name" row
+                                             , description = t "description" row
+                                             , author      = t "author" row
+                                             , maintainer  = t "maintainer" row
+                                             , license     = t "license" row
+                                             , copyright   = t "copyright" row
+                                             , homepage    = t "homepage" row
+                                             , tracker     = t "tracker" row
+                                             , versions    = packageVersions }
 
                    mapM producePackageFrom rows
