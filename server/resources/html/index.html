@@ -76,9 +76,31 @@
       box-shadow: none;
     }
 
+    div#alphabet {
+      width: 86%;
+      margin: 30px 7% 0;
+      padding-left: 33px;
+      top: 83px;
+    }
+
+    div#alphabet a {
+      text-decoration: none;
+      font-size: 0.9em;
+      margin-left: 5px;
+    }
+
+    div#alphabet a.disabled {
+      color: #ccc;
+      cursor: default;
+    }
+
+    div#alphabet a.disabled:hover {
+      color: #ccc;
+    }
+
     div#packages {
       width: 86%;
-      margin: 4% 7% 0
+      margin: 40px 7% 30px;
     }
 
     div#fields {
@@ -120,7 +142,7 @@
     }
 
     div.cell.name {
-      width: 30%;
+      width: 27%;
     }
 
     div.package div.cell.name {
@@ -136,32 +158,11 @@
     }
 
     div.cell.license {
-      width: 10%;
+      width: 13%;
     }
 
     div.cell.description {
       display: table-cell;
-    }
-
-    div#alphabet {
-      position: absolute;
-      right: 7%;
-      top: 283px;
-    }
-
-    div#alphabet a {
-      text-decoration: none;
-      font-size: 0.7em;
-      margin-left: 1px;
-    }
-
-    div#alphabet a.disabled {
-      color: #ccc;
-      cursor: default;
-    }
-
-    div#alphabet a.disabled:hover {
-      color: #ccc;
     }
 
     div#over,
@@ -319,6 +320,7 @@
   <div id="search">
     <input type="text" placeholder="search" />
   </div>
+  <div id="alphabet"></div>
   <div id="packages">
     <div id="fields">
       <div class="cell name">Name</div>
@@ -327,68 +329,14 @@
       <div class="cell license">License</div>
       <div class="cell description">Description</div>
     </div>
-    <div class="package">
-      <div class="cell name"><span class="match">lisp</span>parser</div>
-      <div class="cell author">Jonathan Tang</div>
-      <div class="cell version">0.3.1</div>
-      <div class="cell license">BSD3</div>
-      <div class="cell description">A simple parser for LISP S-expressions, using Parsec.</div>
-    </div>
-    <div class="package">
-      <div class="cell name">sexp</div>
-      <div class="cell author">Alexandru Scvortov</div>
-      <div class="cell version">0.7</div>
-      <div class="cell license">GPL-3</div>
-      <div class="cell description">See the README.md file and the homepage for details.</div>
-    </div>
-    <div class="package">
-      <div class="cell name">chalmers-lava2000</div>
-      <div class="cell author">Koen Claessen</div>
-      <div class="cell version">1.3</div>
-      <div class="cell license">BSD3</div>
-      <div class="cell description">Hardware description library</div>
-    </div>
-    <div class="package">
-      <div class="cell name">blink1</div>
-      <div class="cell author">Dylan Simon</div>
-      <div class="cell version">0.3</div>
-      <div class="cell license">BSD3</div>
-      <div class="cell description">Provides an interface to the ThingM blink(1) LED http://thingm.com/products/blink-1.html similar to (but not dependent on) http://github.com/todbot/blink1 via Linux hidraw or the libusb-based usb package.</div>
-    </div>
   </div>
-  <div id="alphabet">
-    <a href="#a" class="disabled">a</a>
-    <a href="#b">b</a>
-    <a href="#c">c</a>
-    <a href="#d" class="disabled">d</a>
-    <a href="#e" class="disabled">e</a>
-    <a href="#f" class="disabled">f</a>
-    <a href="#g" class="disabled">g</a>
-    <a href="#h" class="disabled">h</a>
-    <a href="#i" class="disabled">i</a>
-    <a href="#j" class="disabled">j</a>
-    <a href="#k" class="disabled">k</a>
-    <a href="#l">l</a>
-    <a href="#m" class="disabled">m</a>
-    <a href="#n" class="disabled">n</a>
-    <a href="#o" class="disabled">o</a>
-    <a href="#p" class="disabled">p</a>
-    <a href="#q" class="disabled">q</a>
-    <a href="#r" class="disabled">r</a>
-    <a href="#s">s</a>
-    <a href="#t" class="disabled">t</a>
-    <a href="#u" class="disabled">u</a>
-    <a href="#v" class="disabled">v</a>
-    <a href="#w" class="disabled">w</a>
-    <a href="#x" class="disabled">x</a>
-    <a href="#y" class="disabled">y</a>
-    <a href="#z" class="disabled">z</a>
-  </div>
+  <div id="additional-information"></div>
   <div id="over"></div>
   <div id="package-info">
     <div id="close">&#x2715;</div>
-    <div class="clipboard" title="click to copy to clipboard"><span
-        class="prompt">$&#62;</span> sllar install sexp</div>
+    <div class="clipboard" title="click to copy to clipboard">
+      <span class="prompt">$&#62;</span> sllar install sexp
+    </div>
     <div class="attributes">
       <div class="title">Additional properties</div>
       <div class="attr-field">
@@ -444,5 +392,177 @@
       <a href="#/privacy-policy">Privacy policy</a>
     </div>
   </div>
+  <script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
+  <script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+  <script type="application/javascript">
+    (function () {
+      // ---------- Backbone package init ----------
+
+      var sllar = {
+        models:      {},
+        collections: {},
+        views:       {},
+        routers:     {},
+        helpers:     {}
+      };
+
+      // ---------- Backbone package init ----------
+
+      // --------------- collections ---------------
+
+      sllar.collections.Packages = Backbone.Collection.extend ({
+        url: "packages",
+
+        initialize: function () {
+          this.model = sllar.models.PackageTeaser;
+          this.fetch ();
+        }
+      });
+
+      sllar.collections.Alphabet = Backbone.Collection.extend ({
+        url: "alphabet",
+
+        initialize: function () {
+          this.model = sllar.models.Letter;
+          this.fetch ();
+        }
+      });
+
+      // --------------- collections ---------------
+
+      // ------------------ models -----------------
+
+      sllar.models.PackageTeaser = Backbone.Model.extend ({
+        initialize: function () {
+          new sllar.views.PackageTeaser ({ model: this });
+        }
+      });
+
+      sllar.models.Letter = Backbone.Model.extend ({
+        initialize: function () {
+          new sllar.views.Letter ({ model: this });
+          console.log (this);
+        }
+      });
+
+      // ------------------ models -----------------
+
+      // --------------- collections ---------------
+
+      sllar.collections.PackageTeasers = Backbone.Collection.extend ({
+        url: "packages",
+
+        initialize: function () {
+          this.model = sllar.models.PackageTeaser;
+          this.fetch ();
+        }
+      });
+
+      sllar.collections.Alphabet = Backbone.Collection.extend ({
+        url: "alphabet",
+
+        initialize: function () {
+          this.model = sllar.models.Letter;
+          this.fetch ();
+        }
+      })
+
+      // --------------- collections ---------------
+
+      // ------------------ views ------------------
+
+      sllar.views.PackageTeaser = Backbone.View.extend ({
+        initialize: function (attributes) {
+          this.$el = $("#packages");
+          this.tmpl = _.template($("#package_teaser_template").text());
+          this.render (attributes.model.attributes);
+        },
+
+        render: function (data) {
+          this.$el.append (this.tmpl (data));
+          return this;
+        }
+      });
+
+      sllar.views.Letter = Backbone.View.extend ({
+        initialize: function (attributes) {
+          this.$el = $("#alphabet");
+          this.tmpl = _.template("<a href=\"#/<%= letter %>\"><%= letter %></a>");
+          this.render (attributes.model.attributes);
+        },
+
+        render: function (data) {
+          this.$el.append (this.tmpl(data))
+        }
+      });
+
+      // ------------------ views ------------------
+
+      // ------------------ router -----------------
+
+      sllar.routers.Application = Backbone.Router.extend ({
+        routes: {
+          "": "root",
+          "package/*name": "packageDetails"
+          // "user-guide": "userGuide",
+          // "about": "about",
+          // "privacy-policy": "privacyPolicy"
+        },
+
+        initialize: function () {
+          this.route (/^(user-guide|about|privacy-policy)/, "info", function (section) {
+            console.log (section);
+            sllar.helpers.showAdditionalInformation ();
+          });
+        },
+
+        root: function () {
+          sllar.helpers.showPackages ();
+          new sllar.collections.Packages ();
+          new sllar.collections.Alphabet ();
+        },
+
+        packageDetails: function (name) {
+          console.log (name);
+        }
+      });
+
+      // ------------------ router -----------------
+
+      // ----------------- helpers -----------------
+
+      sllar.helpers = {
+        showPackages: function () {
+          $("#packages, #alphabet").css("display", "block");
+          $("#additional-information").css("display", "none");
+        },
+
+        showAdditionalInformation: function () {
+          $("#additional-information").css("display", "block");
+          $("#packages, #alphabet").css("display", "none");
+        }
+      };
+
+      // ----------------- helpers -----------------
+
+      // ------------- application init ------------
+
+      var application = new sllar.routers.Application ();
+      Backbone.history.start ();
+
+      // ------------- application init ------------
+    } ());
+  </script>
+
+  <script type="javascript/template" id="package_teaser_template">
+    <div class="package">
+      <div class="cell name"><%= name %></div>
+      <div class="cell author"><%= author %></div>
+      <div class="cell version"><%= _.last(versions).version %></div>
+      <div class="cell license"><%= license %></div>
+      <div class="cell description"><%= description %></div>
+    </div>
+  </script>
 </body>
 </html>

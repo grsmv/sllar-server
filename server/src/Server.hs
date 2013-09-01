@@ -17,6 +17,7 @@ import System.IO
 import System.Process (system)
 import System.Posix.Process (getProcessID)
 import System.Posix.Daemonize (daemonize)
+import qualified Data.String.Utils as String
 
 data Request = Request
              { rtype :: RequestType
@@ -86,6 +87,7 @@ router request = do
         (html, json, text) = ("text/html", "application/json", "text/plain")
         (bodyIO, respType) = case (rtype', path') of
                                   (GET,    "/packages") -> (ExposedPackage.allPackagesAsJson, json)
+                                  (GET,    "/alphabet") -> (return alphabet,                  json)
                                   (POST,   "/publish")  -> (publish options',                 text)
 
                                   -- everything else, including index
@@ -142,3 +144,12 @@ writePid = do
     let pidfile = tmpFolder ++ "sllar-server.pid"
         pidStr = show pid
     writeFile pidfile pidStr
+
+
+--
+-- Rendering English alphabet as JSON
+--
+alphabet :: String
+alphabet =
+  "[" ++ String.join ", " letters ++ "]"
+  where letters = map (\l -> "{ \"letter\": \"" ++ [l] ++ "\" }") ['a'..'z']
