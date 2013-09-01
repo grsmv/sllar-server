@@ -329,9 +329,7 @@
     <a href="#/about">About</a>
     <a href="#/privacy-policy">Privacy policy</a>
   </div>
-  <div id="search">
-    <input type="text" placeholder="search" />
-  </div>
+  <div id="search"></div>
   <div id="alphabet"></div>
   <div id="packages">
     <div id="fields">
@@ -427,7 +425,7 @@
       sllar.collections.Packages = Backbone.Collection.extend ({
         url: "packages",
 
-        initialize: function () {
+        initialize: function (options) {
           this.model = sllar.models.PackageTeaser;
           this.fetch ();
         }
@@ -448,7 +446,8 @@
 
       sllar.models.PackageTeaser = Backbone.Model.extend ({
         initialize: function () {
-          new sllar.views.PackageTeaser ({ model: this });
+          var packageTeaserView = new sllar.views.PackageTeaser ({ model: this });
+          // this.collection.bind ("reset", packageTeaserView.render())
         }
       });
 
@@ -466,7 +465,7 @@
         initialize: function (attributes) {
           this.$el = $("#packages #list");
           this.tmpl = _.template($("#package_teaser_template").text());
-          _.once(this.render (attributes.model.attributes));
+          this.render (attributes.model.attributes);
         },
 
         render: function (data) {
@@ -492,14 +491,14 @@
           "keyup": "filterPackages"
         },
 
-        initialize: function () {
+        initialize: function (options) {
           this.$el = $("#search");
-          this.tmpl = _.template(this.$el.html());
-          this.render ();
+          this.tmpl = _.template("<input type=\"text\" placeholder=\"search\" value=\"<%= query %>\" />");
+          this.render ({ query: this.options.searchQuery });
         },
 
-        render: function () {
-          this.$el.html(this.tmpl);
+        render: function (data) {
+          this.$el.html(this.tmpl(data));
         },
 
         filterPackages: function () {
@@ -514,11 +513,6 @@
 
       sllar.routers.Application = Backbone.Router.extend ({
         initialize: function () {
-
-          // initializing search bar
-          new sllar.views.Search();
-
-          // handling `static` informational pages
           this.route (/^(user-guide|about|privacy-policy)/, "info", function (section) {
             sllar.helpers.showAdditionalInformation ();
           });
@@ -526,16 +520,26 @@
 
         routes: {
           "": "root",
-          "package/*name": "packageDetails"
+          "package/*name": "packageDetails",
+          "search/*query": "savedSearch"
         },
 
         root: function () {
           sllar.helpers.showPackages ();
+          new sllar.views.Search();
           new sllar.collections.Packages ();
           new sllar.collections.Alphabet ();
         },
 
-        packageDetails: function (name) {}
+        packageDetails: function (name) {},
+
+        savedSearch: function (query) {
+          var options = { searchQuery: query };
+          sllar.helpers.showPackages ();
+          new sllar.views.Search (options);
+          new sllar.collections.Packages (options);
+          // new sllar.collections.Alphabet (options);
+        }
       });
 
       // ------------------ router -----------------
