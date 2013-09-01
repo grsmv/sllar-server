@@ -427,7 +427,40 @@
 
         initialize: function (options) {
           this.model = sllar.models.PackageTeaser;
-          this.fetch ();
+
+          if (typeof options === "undefined") {
+            this.fetch ({
+              reset: false,
+              success: function (collection, response, fetchOptions) {
+                sllar.backupCollection = _.clone(collection);
+              }
+            });
+          } else {
+            if (options.searchQuery.length > 0) {
+
+              var that = this;
+
+              this.fetch({
+                success: function (collection, response, fetchOptions) {
+
+                  // backuping data
+                  sllar.backupCollection = _.clone(collection);
+
+                  var filteredModels = _.filter(
+                    _.map(collection.models, function (model) {
+                      return model.attributes;
+                    }), function (model) {
+
+                      return _.any(_.map(["name", "author", "description", "license"], function (field) {
+                        return model[field].toLowerCase().indexOf(options.searchQuery.toLowerCase()) > -1;
+                      }));
+                    });
+                  sllar.helpers.clear();
+                  that.reset(filteredModels);
+                }
+              });
+            }
+          }
         }
       });
 
@@ -447,7 +480,7 @@
       sllar.models.PackageTeaser = Backbone.Model.extend ({
         initialize: function () {
           var packageTeaserView = new sllar.views.PackageTeaser ({ model: this });
-          // this.collection.bind ("reset", packageTeaserView.render())
+          this.collection.bind ("reset", packageTeaserView.render);
         }
       });
 
@@ -463,14 +496,19 @@
 
       sllar.views.PackageTeaser = Backbone.View.extend ({
         initialize: function (attributes) {
+
+          _.bindAll(this, 'render');
+
           this.$el = $("#packages #list");
           this.tmpl = _.template($("#package_teaser_template").text());
           this.render (attributes.model.attributes);
         },
 
         render: function (data) {
-          this.$el.append (this.tmpl (data));
-          return this;
+          try {
+            this.$el.append (this.tmpl (data));
+            return this;
+          } catch (err) {}
         }
       });
 
@@ -504,6 +542,20 @@
         filterPackages: function () {
           var query = this.$el.find("input").val();
           application.navigate(query.length === 0 ? "" : "search/" + query);
+
+          var filteredModels = _.filter(
+
+            _.map(sllar.backupCollection.models, function (model) {
+              return model.attributes;
+            }), function (model) {
+
+              return _.any(_.map(["name", "author", "description", "license"], function (field) {
+                return model[field].toLowerCase().indexOf(query.toLowerCase()) > -1;
+              }));
+            });
+
+          sllar.helpers.clear();
+          sllar.packagesCollection.reset(filteredModels);
         }
       });
 
@@ -527,17 +579,19 @@
         root: function () {
           sllar.helpers.showPackages ();
           new sllar.views.Search();
-          new sllar.collections.Packages ();
+          sllar.packagesCollection = new sllar.collections.Packages ();
           new sllar.collections.Alphabet ();
         },
 
         packageDetails: function (name) {},
 
         savedSearch: function (query) {
-          var options = { searchQuery: query };
           sllar.helpers.showPackages ();
+
+          var options = { searchQuery: query };
           new sllar.views.Search (options);
-          new sllar.collections.Packages (options);
+          sllar.packagesCollection = new sllar.collections.Packages (options);
+
           // new sllar.collections.Alphabet (options);
         }
       });
