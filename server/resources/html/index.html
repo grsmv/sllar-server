@@ -12,11 +12,12 @@
     body {
       font: normal 1em Helvetica, arial, tahoma, sans-serif;
       padding: 0;
-      margin: 0 0 35px;
+      margin: 0 0 65px;
     }
 
     a {
-      color: #008ACE
+      color: #008ACE;
+      text-decoration: none
     }
 
     a:hover {
@@ -86,7 +87,7 @@
     div#alphabet a {
       text-decoration: none;
       font-size: 0.9em;
-      margin-left: 5px;
+      margin-left: 10px;
     }
 
     div#alphabet a.disabled {
@@ -127,6 +128,11 @@
       color: #999;
       font-size: 0.9em;
       margin-bottom: 5px;
+    }
+
+    div.cell a {
+      text-decoration: none !important;
+      border-bottom: none !important
     }
 
     div.cell span.match {
@@ -277,7 +283,7 @@
       height: 35px;
       width: 86%;
       margin: 0 7%;
-      padding-top: 10px;
+      padding-top: 40px;
       border-top: 1px solid #ccc;
     }
 
@@ -302,6 +308,12 @@
 
     #copyright a {
       text-decoration: none;
+    }
+
+    .clear {
+      width: 100%;
+      float: none;
+      clear: both
     }
 
     /* --------- // Main blocks --------- */
@@ -329,6 +341,7 @@
       <div class="cell license">License</div>
       <div class="cell description">Description</div>
     </div>
+    <div id="list"></div>
   </div>
   <div id="additional-information"></div>
   <div id="over"></div>
@@ -442,41 +455,18 @@
       sllar.models.Letter = Backbone.Model.extend ({
         initialize: function () {
           new sllar.views.Letter ({ model: this });
-          console.log (this);
         }
       });
 
       // ------------------ models -----------------
 
-      // --------------- collections ---------------
-
-      sllar.collections.PackageTeasers = Backbone.Collection.extend ({
-        url: "packages",
-
-        initialize: function () {
-          this.model = sllar.models.PackageTeaser;
-          this.fetch ();
-        }
-      });
-
-      sllar.collections.Alphabet = Backbone.Collection.extend ({
-        url: "alphabet",
-
-        initialize: function () {
-          this.model = sllar.models.Letter;
-          this.fetch ();
-        }
-      })
-
-      // --------------- collections ---------------
-
       // ------------------ views ------------------
 
       sllar.views.PackageTeaser = Backbone.View.extend ({
         initialize: function (attributes) {
-          this.$el = $("#packages");
+          this.$el = $("#packages #list");
           this.tmpl = _.template($("#package_teaser_template").text());
-          this.render (attributes.model.attributes);
+          _.once(this.render (attributes.model.attributes));
         },
 
         render: function (data) {
@@ -488,7 +478,7 @@
       sllar.views.Letter = Backbone.View.extend ({
         initialize: function (attributes) {
           this.$el = $("#alphabet");
-          this.tmpl = _.template("<a href=\"#/<%= letter %>\"><%= letter %></a>");
+          this.tmpl = _.template("<a href=\"#<%= letter %>\"><%= letter %></a>");
           this.render (attributes.model.attributes);
         },
 
@@ -497,24 +487,46 @@
         }
       });
 
+      sllar.views.Search = Backbone.View.extend ({
+        events: {
+          "keyup": "filterPackages"
+        },
+
+        initialize: function () {
+          this.$el = $("#search");
+          this.tmpl = _.template(this.$el.html());
+          this.render ();
+        },
+
+        render: function () {
+          this.$el.html(this.tmpl);
+        },
+
+        filterPackages: function () {
+          var query = this.$el.find("input").val();
+          application.navigate(query.length === 0 ? "" : "search/" + query);
+        }
+      });
+
       // ------------------ views ------------------
 
       // ------------------ router -----------------
 
       sllar.routers.Application = Backbone.Router.extend ({
+        initialize: function () {
+
+          // initializing search bar
+          new sllar.views.Search();
+
+          // handling `static` informational pages
+          this.route (/^(user-guide|about|privacy-policy)/, "info", function (section) {
+            sllar.helpers.showAdditionalInformation ();
+          });
+        },
+
         routes: {
           "": "root",
           "package/*name": "packageDetails"
-          // "user-guide": "userGuide",
-          // "about": "about",
-          // "privacy-policy": "privacyPolicy"
-        },
-
-        initialize: function () {
-          this.route (/^(user-guide|about|privacy-policy)/, "info", function (section) {
-            console.log (section);
-            sllar.helpers.showAdditionalInformation ();
-          });
         },
 
         root: function () {
@@ -523,9 +535,7 @@
           new sllar.collections.Alphabet ();
         },
 
-        packageDetails: function (name) {
-          console.log (name);
-        }
+        packageDetails: function (name) {}
       });
 
       // ------------------ router -----------------
@@ -533,14 +543,24 @@
       // ----------------- helpers -----------------
 
       sllar.helpers = {
+        packages: "#packages #list, #alphabet",
+        headers: "#packages #fields",
+        additional: "#additional-information",
+
         showPackages: function () {
-          $("#packages, #alphabet").css("display", "block");
-          $("#additional-information").css("display", "none");
+          this.clear ();
+          $(this.packages + "," + this.headers).css("display", "block");
+          $(this.additional).css("display", "none");
         },
 
         showAdditionalInformation: function () {
-          $("#additional-information").css("display", "block");
-          $("#packages, #alphabet").css("display", "none");
+          this.clear ();
+          $(this.additional).css("display", "block");
+          $(this.packages + "," + this.headers).css("display", "none");
+        },
+
+        clear: function () {
+          $(this.packages + "," + this.additional).html("");
         }
       };
 
@@ -557,11 +577,14 @@
 
   <script type="javascript/template" id="package_teaser_template">
     <div class="package">
-      <div class="cell name"><%= name %></div>
-      <div class="cell author"><%= author %></div>
-      <div class="cell version"><%= _.last(versions).version %></div>
-      <div class="cell license"><%= license %></div>
-      <div class="cell description"><%= description %></div>
+      <a href="#/package/<%= name %>">
+        <div class="cell name"><%= name %></div>
+        <div class="cell author"><%= author %></div>
+        <div class="cell version"><%= _.last(versions).version %></div>
+        <div class="cell license"><%= license %></div>
+        <div class="cell description"><%= description %></div>
+      </a>
+      <div class="clear"></div>
     </div>
   </script>
 </body>
