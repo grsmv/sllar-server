@@ -452,28 +452,16 @@
         initialize: function (options) {
           this.model = sllar.models.PackageTeaser;
 
-          if (typeof options === "undefined") {
-            this.fetch ({
-              reset: false,
-              success: function (collection, response, fetchOptions) {
-                sllar.backupCollection = _.clone(collection);
+          this.fetch ({
+            reset: false,
+            success: $.proxy (function (collection, response, fetchOptions) {
+              sllar.backupCollection = _.clone(collection);
+
+              if (typeof options !== "undefined" && options.searchQuery.length > 0) {
+                sllar.helpers.filterTable(options.searchQuery, collection.models, this);
               }
-            });
-          } else {
-            if (options.searchQuery.length > 0) {
-
-              var that = this;
-
-              this.fetch({
-                success: function (collection, response, fetchOptions) {
-
-                  // backuping data
-                  sllar.backupCollection = _.clone(collection);
-                  sllar.helpers.filterTable (options.searchQuery, collection.models, that);
-                }
-              });
-            }
-          }
+            }, this)
+          });
         }
       });
 
