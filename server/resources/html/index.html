@@ -454,12 +454,11 @@
 
           if (typeof options === "undefined") {
             this.fetch ({
-              reset: false
-            }).done (
-              function (collection, response, fetchOptions) {
+              reset: false,
+              success: function (collection, response, fetchOptions) {
                 sllar.backupCollection = _.clone(collection);
               }
-            );
+            });
           } else {
             if (options.searchQuery.length > 0) {
 
@@ -478,16 +477,6 @@
         }
       });
 
-
-      sllar.collections.Alphabet = Backbone.Collection.extend ({
-        url: "alphabet",
-
-        initialize: function () {
-          this.model = sllar.models.Letter;
-          this.fetch ();
-        }
-      });
-
       // --------------- collections ---------------
 
       // ------------------ models -----------------
@@ -496,13 +485,6 @@
         initialize: function () {
           var packageTeaserView = new sllar.views.PackageTeaser ({ model: this });
           this.collection.bind ("reset", packageTeaserView.render);
-        }
-      });
-
-
-      sllar.models.Letter = Backbone.Model.extend ({
-        initialize: function () {
-          new sllar.views.Letter ({ model: this });
         }
       });
 
@@ -557,20 +539,6 @@
           application.navigate(typeof previousUrl === "undefined" ? "" : previousUrl);
         }
       });
-
-
-      sllar.views.Letter = Backbone.View.extend ({
-        initialize: function (attributes) {
-          this.$el = $("#alphabet");
-          this.tmpl = _.template("<a href=\"#<%= letter %>\"><%= letter %></a>");
-          this.render (attributes.model.attributes);
-        },
-
-        render: function (data) {
-          this.$el.append (this.tmpl(data))
-        }
-      });
-
 
       sllar.views.Search = Backbone.View.extend ({
         events: {
