@@ -10,7 +10,7 @@
     }
 
     body {
-      font: normal 1em Helvetica, arial, tahoma, sans-serif;
+      font: normal 1em source-sans-pro, Helvetica, arial, tahoma, sans-serif;
       padding: 0;
       margin: 0 0 65px;
     }
@@ -25,7 +25,7 @@
     }
 
     h1 {
-      margin: 5% 0 0 7%;
+      margin: 2% 0 0 7%;
       font-size: 3em;
       color: #333
     }
@@ -36,9 +36,9 @@
       font-weight: normal;
       width: 250px;
       position: absolute;
-      margin: -42px 0 0 130px;
+      margin: -48px 0 0 130px;
       color: #666;
-      line-height: 1.5em;
+      line-height: 1.4em;
     }
 
     h1 span a {
@@ -49,7 +49,7 @@
 
     div#navigation {
       position: absolute;
-      top: 15%;
+      top: 6%;
       right: 7%
     }
 
@@ -60,21 +60,22 @@
 
     div#search {
       width: 86%;
-      margin: 4% 7% 0
+      margin: 2% 7% 0
     }
 
     div#search input {
       width: 100%;
-      font-size: 2em;
+      font-size: 1.5em;
       border-radius: 40px;
       border: 1px solid #ccc;
       outline: none;
       padding: 5px 0 5px 30px;
-      box-shadow: inset 0 2px 5px #999;
+      color: #666;
+      /*box-shadow: inset 0 2px 5px #999;*/
     }
 
     div#search input:focus {
-      box-shadow: none;
+      border-color: #008ACE
     }
 
     div#alphabet {
@@ -82,11 +83,12 @@
       margin: 30px 7% 0;
       padding-left: 33px;
       top: 83px;
+      /*display: none;*/
     }
 
     div#alphabet a {
       text-decoration: none;
-      font-size: 0.9em;
+      font-size: 0.9em;s
       margin-left: 10px;
     }
 
@@ -115,8 +117,8 @@
       cursor: pointer;
     }
 
-    div.package:hover {
-      background: #E9F3FC;
+    div.package:hover * {
+      color: #008ACE !important;
     }
 
     div.package:last-of-type {
@@ -148,7 +150,7 @@
     }
 
     div.cell.name {
-      width: 27%;
+      width: 20%;
     }
 
     div.package div.cell.name {
@@ -188,7 +190,7 @@
 
     div#package-info {
       position: absolute;
-      top: 100px;
+      top: 50px;
       left: 50%;
       margin-left: -22%;
       width: 43%;
@@ -233,7 +235,10 @@
       color: #666
     }
 
-    div#package-info .attr-field .v {}
+    div#package-info .attr-field .v {
+      margin-left: 150px;
+      width: 65%
+    }
 
     div#package-info .versions {
       margin: 2% 6%;
@@ -283,7 +288,8 @@
       height: 35px;
       width: 86%;
       margin: 0 7%;
-      padding-top: 40px;
+      margin-top: 30px;
+      padding-top: 10px;
       border-top: 1px solid #ccc;
     }
 
@@ -322,7 +328,7 @@
 <body>
   <h1>
     Sllar
-    <span>Package manager for <a href="http://google.com">SequenceL</a> programming language</span>
+    <span>Package manager for <a href="http://google.com">SequenceL</a><br /> programming language</span>
   </h1>
   <div id="navigation">
     <a href="#/user-guide">User guide</a>
@@ -343,58 +349,7 @@
   </div>
   <div id="additional-information"></div>
   <div id="over"></div>
-  <div id="package-info">
-    <div id="close">&#x2715;</div>
-    <div class="clipboard" title="click to copy to clipboard">
-      <span class="prompt">$&#62;</span> sllar install sexp
-    </div>
-    <div class="attributes">
-      <div class="title">Additional properties</div>
-      <div class="attr-field">
-        <div class="k">Description</div>
-        <div class="v">See the README.md file and the homepage for details.</div>
-      </div>
-      <div class="attr-field">
-        <div class="k">License</div>
-        <div class="v">GPL-3</div>
-      </div>
-      <div class="attr-field">
-        <div class="k">Author</div>
-        <div class="v">Alexandru Scvortov</div>
-      </div>
-      <div class="attr-field">
-        <div class="k">Copyright</div>
-        <div class="v">&copy; 2008 Marko Lauronen</div>
-      </div>
-      <div class="attr-field">
-        <div class="k">Maintainer</div>
-        <div class="v">Marko Lauronen (marko.lauronen@pp1.inet.fi)</div>
-      </div>
-      <div class="attr-field">
-        <div class="k">Upload date</div>
-        <div class="v">Mon Jun 2 17:28:09 UTC 2008</div>
-      </div>
-    </div>
-    <div class="versions">
-      <div class="title">Versions</div>
-      <div class="list">
-        <div class="list-field">
-          <div class="version">0.2</div>
-          <div class="date">Sun Jun 1 17:20:05 UTC 2007</div>
-        </div>
-        <div class="list-field">
-          <div class="version">0.0.1</div>
-          <div class="date">Sat May 31 18:10:06 UTC 2006</div>
-        </div>
-      </div>
-    </div>
-    <div class="policy">
-      Texas Multicore Tecnologies, Inc. is not related to  creators of this
-      package and is not responsible for the consequences of its use.
-      For legal and additional information please contact author(s) of this
-      package.
-    </div>
-  </div>
+  <div id="package-info"></div>
   <div id="footer">
     <div id="copyright">&copy; 2013 <a href="http://texasmulticoretechnologies.com">Texas Multicore Tecnologies, Inc.</a></div>
     <div id="bottom-navigation">
@@ -406,6 +361,75 @@
   <script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
   <script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
   <script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+  <script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.1.0/moment.min.js"></script>
+  <script type="application/javascript" src="//use.edgefonts.net/source-sans-pro.js"></script>
+
+  <script type="javascript/template" id="package_teaser_template">
+    <div class="package">
+      <a href="#/package/<%= name %>" onclick="previousUrl = Backbone.history.fragment">
+        <div class="cell name"><%= name %></div>
+        <div class="cell author"><%= author %></div>
+        <div class="cell version"><%= _.last(versions).version %></div>
+        <div class="cell license"><%= license %></div>
+        <div class="cell description"><%= description %></div>
+      </a>
+      <div class="clear"></div>
+    </div>
+  </script>
+
+  <script type="javascript/template" id="package_details_template">
+    <div id="close">&#x2715;</div>
+    <div class="clipboard" title="click to copy to clipboard">
+      <span class="prompt">$&#62;</span> sllar install <%= name %>
+    </div>
+    <div class="attributes">
+      <div class="title">Additional properties</div>
+      <div class="attr-field">
+        <div class="k">Description</div>
+        <div class="v"><%= description %></div>
+      </div>
+      <div class="attr-field">
+        <div class="k">License</div>
+        <div class="v"><%= license %></div>
+      </div>
+      <div class="attr-field">
+        <div class="k">Author</div>
+        <div class="v"><%= author %></div>
+      </div>
+      <div class="attr-field">
+        <div class="k">Copyright</div>
+        <div class="v"><%= copyright %></div>
+      </div>
+      <div class="attr-field">
+        <div class="k">Maintainer</div>
+        <div class="v"><%= maintainer %></div>
+      </div>
+      <div class="attr-field">
+        <div class="k">Last update</div>
+        <div class="v"><%= moment(_.last(versions).uploadedAt).fromNow() %></div>
+      </div>
+    </div>
+    <div class="versions">
+      <div class="title">Versions</div>
+      <div class="list">
+
+        <% _.each(versions, function (version) { %>
+
+        <div class="list-field">
+          <div class="version"><%= version.version %></div>
+          <div class="date"><%= moment(version.uploadedAt).fromNow() %></div>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+    <div class="policy">
+      Texas Multicore Tecnologies, Inc. is not related to  creators of this
+      package and is not responsible for the consequences of its use.
+      For legal and additional information please contact author(s) of this
+      package.
+    </div>
+  </script>
+
   <script type="application/javascript">
     (function () {
       // ---------- Backbone package init ----------
@@ -430,11 +454,12 @@
 
           if (typeof options === "undefined") {
             this.fetch ({
-              reset: false,
-              success: function (collection, response, fetchOptions) {
+              reset: false
+            }).done (
+              function (collection, response, fetchOptions) {
                 sllar.backupCollection = _.clone(collection);
               }
-            });
+            );
           } else {
             if (options.searchQuery.length > 0) {
 
@@ -445,24 +470,14 @@
 
                   // backuping data
                   sllar.backupCollection = _.clone(collection);
-
-                  var filteredModels = _.filter(
-                    _.map(collection.models, function (model) {
-                      return model.attributes;
-                    }), function (model) {
-
-                      return _.any(_.map(["name", "author", "description", "license"], function (field) {
-                        return model[field].toLowerCase().indexOf(options.searchQuery.toLowerCase()) > -1;
-                      }));
-                    });
-                  sllar.helpers.clear();
-                  that.reset(filteredModels);
+                  sllar.helpers.filterTable (options.searchQuery, collection.models, that);
                 }
               });
             }
           }
         }
       });
+
 
       sllar.collections.Alphabet = Backbone.Collection.extend ({
         url: "alphabet",
@@ -484,6 +499,7 @@
         }
       });
 
+
       sllar.models.Letter = Backbone.Model.extend ({
         initialize: function () {
           new sllar.views.Letter ({ model: this });
@@ -495,6 +511,7 @@
       // ------------------ views ------------------
 
       sllar.views.PackageTeaser = Backbone.View.extend ({
+
         initialize: function (attributes) {
 
           _.bindAll(this, 'render');
@@ -512,6 +529,36 @@
         }
       });
 
+
+      sllar.views.PackageDetails = Backbone.View.extend ({
+        events: {
+          "click #close": "close"
+        },
+
+        initialize: function () {
+          _.bindAll(this, 'render');
+          this.$el = $("#package-info");
+          this.tmpl = _.template($("#package_details_template").text());
+
+          var model = _.filter(sllar.backupCollection, function (model) {
+            return model.name === this.options.name
+          }, this)[0];
+
+          this.render (model);
+        },
+
+        render: function (model) {
+          this.$el.html (this.tmpl (model));
+          return this;
+        },
+
+        close: function () {
+          sllar.helpers.hidePackageDetails ();
+          application.navigate(typeof previousUrl === "undefined" ? "" : previousUrl);
+        }
+      });
+
+
       sllar.views.Letter = Backbone.View.extend ({
         initialize: function (attributes) {
           this.$el = $("#alphabet");
@@ -523,6 +570,7 @@
           this.$el.append (this.tmpl(data))
         }
       });
+
 
       sllar.views.Search = Backbone.View.extend ({
         events: {
@@ -542,20 +590,7 @@
         filterPackages: function () {
           var query = this.$el.find("input").val();
           application.navigate(query.length === 0 ? "" : "search/" + query);
-
-          var filteredModels = _.filter(
-
-            _.map(sllar.backupCollection.models, function (model) {
-              return model.attributes;
-            }), function (model) {
-
-              return _.any(_.map(["name", "author", "description", "license"], function (field) {
-                return model[field].toLowerCase().indexOf(query.toLowerCase()) > -1;
-              }));
-            });
-
-          sllar.helpers.clear();
-          sllar.packagesCollection.reset(filteredModels);
+          sllar.helpers.filterTable (query, sllar.backupCollection.models, sllar.packagesCollection);
         }
       });
 
@@ -568,6 +603,11 @@
           this.route (/^(user-guide|about|privacy-policy)/, "info", function (section) {
             sllar.helpers.showAdditionalInformation ();
           });
+
+          if (window.location.hash.indexOf ("search/") === -1) {
+            sllar.packagesCollection = new sllar.collections.Packages ();
+            new sllar.views.Search();
+          }
         },
 
         routes: {
@@ -579,20 +619,20 @@
         root: function () {
           sllar.helpers.showPackages ();
           new sllar.views.Search();
-          sllar.packagesCollection = new sllar.collections.Packages ();
-          new sllar.collections.Alphabet ();
         },
 
-        packageDetails: function (name) {},
+        packageDetails: function (name) {
+          sllar.helpers.showPackageDetails ();
+          new sllar.views.PackageDetails ({ name: name });
+        },
 
         savedSearch: function (query) {
           sllar.helpers.showPackages ();
 
           var options = { searchQuery: query };
+          sllar.helpers.clear ();
           new sllar.views.Search (options);
           sllar.packagesCollection = new sllar.collections.Packages (options);
-
-          // new sllar.collections.Alphabet (options);
         }
       });
 
@@ -617,8 +657,29 @@
           $(this.packages + "," + this.headers).css("display", "none");
         },
 
+        showPackageDetails: function () {
+          $("#over, #package-info").show ();
+        },
+
+        hidePackageDetails: function () {
+          $("#over, #package-info").hide ();
+        },
+
         clear: function () {
           $(this.packages + "," + this.additional).html("");
+        },
+
+        filterTable: function (query, collection, context) {
+          var filteredModels = _.filter(
+            _.map (collection, function (model) {
+              return model.attributes;
+            }), function (model) {
+              return _.any(_.map(["name", "author", "description", "license"], function (field) {
+                return model[field].toLowerCase().indexOf(query.toLowerCase()) > -1;
+              }));
+            });
+          sllar.helpers.clear();
+          context.reset(filteredModels);
         }
       };
 
@@ -631,19 +692,6 @@
 
       // ------------- application init ------------
     } ());
-  </script>
-
-  <script type="javascript/template" id="package_teaser_template">
-    <div class="package">
-      <a href="#/package/<%= name %>">
-        <div class="cell name"><%= name %></div>
-        <div class="cell author"><%= author %></div>
-        <div class="cell version"><%= _.last(versions).version %></div>
-        <div class="cell license"><%= license %></div>
-        <div class="cell description"><%= description %></div>
-      </a>
-      <div class="clear"></div>
-    </div>
   </script>
 </body>
 </html>
