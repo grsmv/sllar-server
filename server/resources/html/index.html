@@ -15,6 +15,27 @@
       margin: 0 0 65px;
     }
 
+    #wrapper {
+      width: 100%;
+      height: 100%
+
+      -webkit-transform: scale(1);
+      -moz-transform: scale(1);
+      -ms-transform: scale(1);
+      transform: scale(1);
+
+      -webkit-transition: all 0.3s;
+      -moz-transition: all 0.3s;
+      transition: all 0.3s;
+    }
+
+    #wrapper.hovered {
+      -webkit-transform: scale(0.8);
+      -moz-transform: scale(0.8);
+      -ms-transform: scale(0.8);
+      transform: scale(0.8);
+    }
+
     a {
       color: #008ACE;
       text-decoration: none
@@ -45,8 +66,6 @@
       text-decoration: none;
     }
 
-    /* --------- Main blocks --------- */
-
     div#navigation {
       position: absolute;
       top: 6%;
@@ -71,34 +90,10 @@
       outline: none;
       padding: 5px 0 5px 30px;
       color: #666;
-      /*box-shadow: inset 0 2px 5px #999;*/
     }
 
     div#search input:focus {
       border-color: #008ACE
-    }
-
-    div#alphabet {
-      width: 86%;
-      margin: 30px 7% 0;
-      padding-left: 33px;
-      top: 83px;
-      /*display: none;*/
-    }
-
-    div#alphabet a {
-      text-decoration: none;
-      font-size: 0.9em;s
-      margin-left: 10px;
-    }
-
-    div#alphabet a.disabled {
-      color: #ccc;
-      cursor: default;
-    }
-
-    div#alphabet a.disabled:hover {
-      color: #ccc;
     }
 
     div#packages {
@@ -173,11 +168,6 @@
       display: table-cell;
     }
 
-    div#over,
-    div#package-info {
-      display: none;
-    }
-
     div#over {
       position: fixed;
       background: #fff;
@@ -185,20 +175,57 @@
       height: 100%;
       top: 0;
       left: 0;
+      transition: all 0.3s;
+
+      visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      -moz-backface-visibility: hidden;
+      backface-visibility: hidden;
+
+      opacity: 0;
+      -webkit-transition: all 0.3s;
+      -moz-transition: all 0.3s;
+      transition: all 0.3s;
+    }
+
+    div#over.show {
+      visibility: visible;
       opacity: 0.6;
     }
 
     div#package-info {
-      position: absolute;
       top: 50px;
       left: 50%;
       margin-left: -22%;
       width: 43%;
       background: #fff;
-      box-shadow: #000 0 10px 800px;
+      box-shadow: #666 0 10px 60px;
       padding-bottom: 2%;
       position: fixed;
       z-index: 2;
+
+      visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      -moz-backface-visibility: hidden;
+      backface-visibility: hidden;
+
+      -webkit-transform: scale(1.7);
+      -moz-transform: scale(1.7);
+      -ms-transform: scale(1.7);
+      transform: scale(1.7);
+      opacity: 0;
+      -webkit-transition: all 0.3s;
+      -moz-transition: all 0.3s;
+      transition: all 0.3s;
+    }
+
+    div#package-info.show {
+      -webkit-transform: scale(1);
+      -moz-transform: scale(1);
+      -ms-transform: scale(1);
+      transform: scale(1);
+      opacity: 1;
+      visibility: visible;
     }
 
     div#package-info #close {
@@ -322,34 +349,34 @@
       clear: both
     }
 
-    /* --------- // Main blocks --------- */
   </style>
 </head>
 <body>
-  <h1>
-    Sllar
-    <span>Package manager for <a href="http://google.com">SequenceL</a><br /> programming language</span>
-  </h1>
-  <div id="navigation">
-    <a href="#/user-guide">User guide</a>
-    <a href="#/about">About</a>
-    <a href="#/privacy-policy">Privacy policy</a>
-  </div>
-  <div id="search"></div>
-  <div id="alphabet"></div>
-  <div id="packages">
-    <div id="fields">
-      <div class="cell name">Name</div>
-      <div class="cell author">Author</div>
-      <div class="cell version">Version</div>
-      <div class="cell license">License</div>
-      <div class="cell description">Description</div>
+  <div id="wrapper">
+    <h1>
+      Sllar
+      <span>Package manager for <a href="http://google.com">SequenceL</a><br /> programming language</span>
+    </h1>
+    <div id="navigation">
+      <a href="#/user-guide">User guide</a>
+      <a href="#/about">About</a>
+      <a href="#/privacy-policy">Privacy policy</a>
     </div>
-    <div id="list"></div>
-  </div>
-  <div id="additional-information"></div>
-  <div id="over"></div>
-  <div id="package-info"></div>
+    <div id="search"></div>
+    <div id="alphabet"></div>
+    <div id="packages">
+      <div id="fields">
+        <div class="cell name">Name</div>
+        <div class="cell author">Author</div>
+        <div class="cell version">Version</div>
+        <div class="cell license">License</div>
+        <div class="cell description">Description</div>
+      </div>
+      <div id="list"></div>
+    </div>
+    <div id="additional-information"></div>
+  </div> <!-- #wrapper -->
+
   <div id="footer">
     <div id="copyright">&copy; 2013 <a href="http://texasmulticoretechnologies.com">Texas Multicore Tecnologies, Inc.</a></div>
     <div id="bottom-navigation">
@@ -358,6 +385,9 @@
       <a href="#/privacy-policy">Privacy policy</a>
     </div>
   </div>
+
+  <div id="over"></div>
+  <div id="package-info"></div>
   <script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
   <script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
   <script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
@@ -380,7 +410,7 @@
   <script type="javascript/template" id="package_details_template">
     <div id="close">&#x2715;</div>
     <div class="clipboard" title="click to copy to clipboard">
-      <span class="prompt">$&#62;</span> sllar install <%= name %>
+      <span class="prompt">$&#62;</span> <span id="install-command">sllar install <%= name %></span>
     </div>
     <div class="attributes">
       <div class="title">Additional properties</div>
@@ -498,11 +528,12 @@
 
       sllar.views.PackageDetails = Backbone.View.extend ({
         events: {
-          "click #close": "close"
+          "click #close": "close",
+          "click .clipboard": "copyInstallCommand"
         },
 
         initialize: function () {
-          _.bindAll(this, 'render');
+          _.bindAll(this, "render");
           this.$el = $("#package-info");
           this.tmpl = _.template($("#package_details_template").text());
 
@@ -613,11 +644,13 @@
         },
 
         showPackageDetails: function () {
-          $("#over, #package-info").show ();
+          $("#wrapper").addClass("hovered");
+          $("#over, #package-info").addClass("show");
         },
 
         hidePackageDetails: function () {
-          $("#over, #package-info").hide ();
+          $("#wrapper").removeClass("hovered");
+          $("#over, #package-info").removeClass("show");
         },
 
         clear: function () {
