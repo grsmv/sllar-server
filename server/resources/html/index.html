@@ -452,7 +452,7 @@
         initialize: function (options) {
           this.model = sllar.models.PackageTeaser;
 
-          this.fetch ({
+          sllar.packagesCollectionPromise = this.fetch ({
             reset: false,
             success: $.proxy (function (collection, response, fetchOptions) {
               sllar.backupCollection = _.clone(collection);
@@ -506,11 +506,18 @@
           this.$el = $("#package-info");
           this.tmpl = _.template($("#package_details_template").text());
 
-          var model = _.filter(sllar.backupCollection, function (model) {
-            return model.name === this.options.name
-          }, this)[0];
+          // waiting for promise release
+          sllar.packagesCollectionPromise.done (
+            $.proxy (function (){
 
-          this.render (model);
+              var model = _.filter(
+                sllar.backupCollection.models, function (m) {
+                  return m.attributes.name === this.options.name
+                }, this)[0];
+
+              this.render (model.attributes);
+            }, this)
+          );
         },
 
         render: function (model) {
