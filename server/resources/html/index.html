@@ -112,7 +112,8 @@
       cursor: pointer;
     }
 
-    div.package:hover * {
+    div.package:hover *,
+    div.package.highlighted * {
       color: #008ACE !important;
     }
 
@@ -396,7 +397,7 @@
   <script type="application/javascript" src="//use.edgefonts.net/source-sans-pro.js"></script>
 
   <script type="javascript/template" id="package_teaser_template">
-    <div class="package">
+    <div class="package" data-id="<%= packageId %>">
       <a href="#/package/<%= name %>" onclick="previousUrl = Backbone.history.fragment">
         <div class="cell name"><%= name %></div>
         <div class="cell author"><%= author %></div>
@@ -470,6 +471,7 @@
         collections: {},
         views:       {},
         routers:     {},
+        instances:   {},
         helpers:     {}
       };
 
@@ -501,6 +503,10 @@
 
 
       sllar.models.PackageTeaser = Backbone.Model.extend ({
+        defaults: {
+          highlighted: false
+        },
+
         initialize: function () {
           var packageTeaserView = new sllar.views.PackageTeaser ({ model: this });
           this.collection.bind ("reset", packageTeaserView.render);
@@ -513,9 +519,15 @@
 
       sllar.views.PackageTeaser = Backbone.View.extend ({
 
+        events: {
+          "mouseover": "unsetCurrentTeaser"
+        },
+
         initialize: function (attributes) {
 
-          _.bindAll(this, 'render');
+          _.bindAll(this, "render", "highlight");
+
+          this.model.on("change:highlighted", this.highlight, this);
 
           this.$el = $("#packages #list");
           this.tmpl = _.template($("#package_teaser_template").text());
@@ -527,6 +539,18 @@
             this.$el.append (this.tmpl (data));
             return this;
           } catch (err) {}
+        },
+
+        highlight: function () {
+          var teaser = $("*[data-id=" + this.model.get("packageId") + "]");
+          teaser[this.model.changed.highlighted ? "addClass" : "removeClass"]("highlighted");
+          sllar.currentTeaser = this;
+        },
+
+        unsetCurrentTeaser: function () {
+          if (! _.isUndefined(sllar.currentTeaser)) {
+            sllar.currentTeaser.model.set("highlighted", false);
+          }
         }
       });
 
@@ -686,10 +710,45 @@
           context.reset(filteredModels);
         },
 
+
+        isSearchInFocus: function () {
+          return $("#search input").is(":focus");
+        },
+
+
+        walkThroughTeasers: function (direction) {
+          if (sllar.helpers.isSearchInFocus ()) {
+            $("#search input").blur();
+          }
+
+          var models = sllar.packagesCollection.models,
+              highlightedTeaser = _.find(models, function (model) {
+                return model.attributes.highlighted;
+              });
+
+          if (_.isUndefined(highlightedTeaser)) {
+            if (direction === "up") {
+              models[_.size(models) - 1].set("highlighted", true)
+            } else {
+              models[0].set("highlighted", true);
+            }
+          } else {
+            var currentIndex = _.indexOf (models, highlightedTeaser);
+                next =
+                  direction === "up" ?
+                    (currentIndex === 0 ? _.size(models) - 1 : currentIndex - 1) :
+                    (currentIndex < models.length - 1 ? currentIndex + 1 : 0);
+
+            highlightedTeaser.set("highlighted", false);
+            models[next].set("highlighted", true);
+          }
+        },
+
+
         hotkeys: function () {
+
           keymage ("s", function (e) {
-            var input = $("#search input");
-            if (! input.is(":focus")) {
+            if (! sllar.helpers.isSearchInFocus()) {
               $("#search input").focus();
               e.preventDefault();
             }
@@ -697,6 +756,26 @@
 
           keymage ("esc", function () {
             sllar.packageDetailsView.close();
+          });
+
+
+          keymage ("up", function () {
+            sllar.helpers.walkThroughTeasers("up");
+          });
+
+
+          keymage ("down", function () {
+            sllar.helpers.walkThroughTeasers("down");
+          });
+
+
+          keymage ("o", function () {
+            if (! sllar.helpers.isSearchInFocus()) {
+              application.navigate(
+                "package/" + sllar.currentTeaser.model.get("name"),
+                { trigger: true }
+              );
+            }
           });
         }
       };
