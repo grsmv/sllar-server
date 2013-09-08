@@ -398,7 +398,7 @@
 
   <script type="javascript/template" id="package_teaser_template">
     <div class="package" data-id="<%= packageId %>">
-      <a href="#/package/<%= name %>" onclick="previousUrl = Backbone.history.fragment">
+      <a href="#/package/<%= name %>">
         <div class="cell name"><%= name %></div>
         <div class="cell author"><%= author %></div>
         <div class="cell version"><%= _.last(versions).version %></div>
@@ -464,6 +464,9 @@
 
   <script type="application/javascript">
     (function () {
+
+      "use strict";
+
       // ---------- Backbone package init ----------
 
       var sllar = {
@@ -475,9 +478,9 @@
         helpers:     {}
       };
 
-      // ---------- Backbone package init ----------
 
       // --------------- collections ---------------
+
 
       sllar.collections.Packages = Backbone.Collection.extend ({
         url: "packages",
@@ -520,7 +523,8 @@
       sllar.views.PackageTeaser = Backbone.View.extend ({
 
         events: {
-          "mouseover": "unsetCurrentTeaser"
+          "mouseover": "unsetCurrentTeaser",
+          "click":     "memoizeUrl"
         },
 
         initialize: function (attributes) {
@@ -551,6 +555,10 @@
           if (! _.isUndefined(sllar.currentTeaser)) {
             sllar.currentTeaser.model.set("highlighted", false);
           }
+        },
+
+        memoizeUrl: function () {
+          sllar.previousUrl = Backbone.history.fragment
         }
       });
 
@@ -587,7 +595,7 @@
 
         close: function () {
           sllar.helpers.hidePackageDetails ();
-          application.navigate(typeof previousUrl === "undefined" ? "" : previousUrl);
+          application.navigate(typeof sllar.previousUrl === "undefined" ? "" : sllar.previousUrl);
         }
       });
 
@@ -733,7 +741,7 @@
               models[0].set("highlighted", true);
             }
           } else {
-            var currentIndex = _.indexOf (models, highlightedTeaser);
+            var currentIndex = _.indexOf (models, highlightedTeaser),
                 next =
                   direction === "up" ?
                     (currentIndex === 0 ? _.size(models) - 1 : currentIndex - 1) :
@@ -771,6 +779,7 @@
 
           keymage ("o", function () {
             if (! sllar.helpers.isSearchInFocus()) {
+              sllar.previousUrl = Backbone.history.fragment;
               application.navigate(
                 "package/" + sllar.currentTeaser.model.get("name"),
                 { trigger: true }
