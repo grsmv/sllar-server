@@ -21,8 +21,8 @@ main = do
       case head args of
         "start"    -> Server.start
         "stop"     -> Server.stop
-        "update"   -> putStrLn "update info"
-        "env"      -> env
+        "renew"    -> putStrLn "renew info"
+        "info"     -> info
         "help"     -> putStrLn "help"
         _          -> putStrLn "help"
 
@@ -46,12 +46,25 @@ withArgs args f = if null args
 
 
 --
+-- Cheking if process running right now
+-- Input: Process ID
+-- Output: boolean state
+--
+isProcessExists :: String -> IO Bool
+isProcessExists pid = do
+    (_, stdout, _) <- readProcessWithExitCode "ps" ["-ewwo", "pid,args"] ""
+    return $ case length $ filter (=~ ("^" ++ pid ++ " ")) (lines stdout) of
+               0 -> False
+               _ -> True
+
+
+--
 -- Getting all important information about current
 -- Sllar-server installation.
 -- Output: IO action
 --
-env :: IO ()
-env = do
+info :: IO ()
+info = do
     let pidFile = "tmp/sllar-server.pid"
         (p, y) = (putStrLn, yellow) -- shortcuts
     sharePath <- getDataFileName ""
@@ -78,16 +91,3 @@ env = do
     y "Config file:      "; p   "├── config"
     y "PID file:         "; p $ "└── " ++ pidFile
     p ""
-
-
---
--- Cheking if process running right now
--- Input: Process ID
--- Output: boolean state
---
-isProcessExists :: String -> IO Bool
-isProcessExists pid = do
-    (_, stdout, _) <- readProcessWithExitCode "ps" ["-ewwo", "pid,args"] ""
-    return $ case length $ filter (=~ ("^" ++ pid ++ " ")) (lines stdout) of
-               0 -> False
-               _ -> True
