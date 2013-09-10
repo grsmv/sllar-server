@@ -1,6 +1,5 @@
 module Main where
 
--- Sllar
 import qualified Server
 import Common
 import Config
@@ -66,7 +65,7 @@ isProcessExists pid = do
 info :: IO ()
 info = do
     let pidFile = "tmp/sllar-server.pid"
-        (p, y) = (putStrLn, yellow) -- shortcuts
+        (p, y) = (putStrLn, yellow)
     sharePath <- getDataFileName ""
     Just config' <- config
     tmpFileExistence <- doesFileExist $ sharePath ++ pidFile

@@ -1,7 +1,6 @@
 module Server ( start
               , stop ) where
 
--- Sllar
 import Config
 import Package (publish)
 import qualified ExposedPackage
@@ -27,10 +26,6 @@ data Request = Request
 data Response = Response { body, restype :: String }
 
 data RequestType = GET | POST deriving (Show, Read)
-
-{------------------------------------------------------------------------------
-                                Public API
-------------------------------------------------------------------------------}
 
 --
 -- Starting a web-server, receiving and routing requests
@@ -70,10 +65,6 @@ stop = do
     removeFile tmpFilePath
     putStrLn "sllar-server was stopped"
 
-
-{------------------------------------------------------------------------------
-                                Request handling
-------------------------------------------------------------------------------}
 
 --
 -- Routing request to a specific content
@@ -127,10 +118,6 @@ parseRequestHelper (l:rest, accum)
     | length (words l) < 2 = accum
     | otherwise = parseRequestHelper(rest, accum ++ [(init . head . words $ l, unwords . tail . words $ l)] )
 
-
-{------------------------------------------------------------------------------
-                                  Helpers
-------------------------------------------------------------------------------}
 
 --
 -- Memoizing Process PID, recording it to a pid file

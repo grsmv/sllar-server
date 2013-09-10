@@ -45,20 +45,6 @@ dataTables =
 
 
 --
--- Wrapping each SQLite-related action to a connection acquiring-resource releasing cycle.
--- Also checks SQLite database existence and creates new one if not.
--- Input: function, that needed to be evaluated between opening and closing connection
---
-withConnection :: (SQLiteHandle -> IO a) -> IO a
-withConnection =
-    bracket (do db <- Paths.getDataFileName dbName
-                doesDatabaseExists <- doesFileExist db
-                unless doesDatabaseExists create
-                Paths.getDataFileName dbName >>= openConnection)
-            closeConnection
-
-
---
 -- Creating sqlite database from scratch
 --
 create :: IO ()
@@ -72,3 +58,17 @@ create = do
              , tabConstraints = [] }
        ) dataTables
     return ()
+
+
+--
+-- Wrapping each SQLite-related action to a connection acquiring-resource releasing cycle.
+-- Input: function, that needed to be evaluated between opening and closing connection
+--
+withConnection :: (SQLiteHandle -> IO a) -> IO a
+withConnection =
+    -- checking SQLite database existence and creates new one if not
+    bracket (do db <- Paths.getDataFileName dbName
+                doesDatabaseExists <- doesFileExist db
+                unless doesDatabaseExists create
+                Paths.getDataFileName dbName >>= openConnection)
+            closeConnection
