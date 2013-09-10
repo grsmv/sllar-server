@@ -444,9 +444,7 @@
     <div class="versions">
       <div class="title">Versions</div>
       <div class="list">
-
         <% _.each(versions, function (version) { %>
-
         <div class="list-field">
           <div class="version"><%= version.version %></div>
           <div class="date"><%= moment(version.uploadedAt).fromNow() %></div>
@@ -580,7 +578,7 @@
 
               var model = _.filter(
                 sllar.backupCollection.models, function (m) {
-                  return m.attributes.name === this.options.name
+                  return m.attributes.name === this.options.name;
                 }, this)[0];
 
               this.render (model.attributes);
@@ -780,10 +778,12 @@
           keymage ("o", function () {
             if (! sllar.helpers.isSearchInFocus()) {
               sllar.previousUrl = Backbone.history.fragment;
-              application.navigate(
-                "package/" + sllar.currentTeaser.model.get("name"),
-                { trigger: true }
-              );
+              if (typeof sllar.currentTeaser !== "undefined") {
+                application.navigate(
+                  "package/" + sllar.currentTeaser.model.get("name"),
+                  { trigger: true }
+                );
+              }
             }
           });
         }
