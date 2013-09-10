@@ -1,16 +1,22 @@
 module Main where
 
-import qualified Server
+
 import Common
 import Config
 import Paths_sllar_server
+import qualified Server
+import qualified Version
 
--- System
+-- system
+import Data.Text.Template
+import Data.Maybe (fromMaybe)
 import System.Directory (doesFileExist)
 import System.Environment (getArgs)
 import System.Process (readProcessWithExitCode)
 import Text.Regex.Posix ((=~))
-import qualified Version
+import qualified Data.ByteString.Lazy as S
+import qualified Data.Text as T
+import qualified Data.Text.Lazy.Encoding as E
 
 
 main :: IO ()
@@ -90,3 +96,12 @@ info = do
     y "Config file:      "; p   "├── config"
     y "PID file:         "; p $ "└── " ++ pidFile
     p ""
+
+-- infoTemplated :: IO ()
+-- infoTemplated =
+
+-- Needed data:
+--   version
+--   state
+--   port
+--   pidFile

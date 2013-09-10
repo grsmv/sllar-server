@@ -42,6 +42,7 @@ Executable sllar-server
     sqlite,
     syb,
     tar,
+    template,
     temporary,
     unix,
     yaml
