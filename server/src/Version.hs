@@ -1,3 +1,5 @@
+-- todo: switch to Cabal-inner definition
+
 module Version where
 
 version :: String

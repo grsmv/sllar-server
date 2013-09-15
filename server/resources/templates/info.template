@@ -1,0 +1,12 @@
+$header
+
+                      Current state  :  $state
+                               Port  :  $port
+               Packages in database  :  $numberOfPackages (omg, we are popular)
+
+                      Resources dir  :  $sharedPath
+                           Database  :    ├── database.sqlite
+                    Packages folder  :    ├── packages/
+                      Configuration  :    ├── config
+                           Pid file  :    └── tmp/sllar-server.pid
+

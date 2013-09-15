@@ -1,20 +1,22 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
-
 import Common
-import Config
+import qualified Config
 import Paths_sllar_server
 import qualified Server
-import qualified Version
+--import qualified Version
 
 -- system
 import Data.Text.Template
 import Data.Maybe (fromMaybe)
+import Control.Applicative ((<$>))
 import System.Directory (doesFileExist)
 import System.Environment (getArgs)
 import System.Process (readProcessWithExitCode)
 import Text.Regex.Posix ((=~))
-import qualified Data.ByteString.Lazy as S
+import qualified Data.ByteString.Lazy.Char8 as S
 import qualified Data.Text as T
 import qualified Data.Text.Lazy.Encoding as E
 
@@ -33,21 +35,29 @@ main = do
 
 
 --
--- Raising exit with message if number of arguments is incorrect
+-- Getting all important information about current
+-- Sllar-server installation.
+-- Output: IO action
 --
-argFailure :: IO ()
-argFailure = failDown "No arguments specified"
+info :: IO ()
+info = do
 
+    sharedPath <- getDataFileName ""
+    infoTemplate <- getDataFileName "resources/templates/info.template" >>= readFile
+    headerContents <- getDataFileName "resources/templates/header.template" >>= readFile
+    port <- Config.port . fromMaybe (Config.Config 5000) <$> Config.config
+    state <- serverState
 
---
--- Wrapper, that checks if any argument specified
--- Input: arguments, function to applicationy if arguments exists
--- Output: wrapped function
---
-withArgs :: [String] -> IO () -> IO ()
-withArgs args f = if null args
-                    then failDown "No arguments specified"
-                    else f
+    let context assocs x = fromMaybe "" $ lookup x assocs
+        infoContext :: Context
+        infoContext = context [ ("header", T.pack headerContents)
+                              , ("state", T.pack state)
+                              , ("port",  T.pack $ show port)
+                              , ("numberOfPackages", T.pack "42")
+                              , ("sharedPath", T.pack sharedPath)
+                              ]
+
+    S.putStrLn $ E.encodeUtf8 $ substitute (T.pack infoTemplate) infoContext
 
 
 --
@@ -64,44 +74,33 @@ isProcessExists pid = do
 
 
 --
--- Getting all important information about current
--- Sllar-server installation.
--- Output: IO action
+-- Checking server running state and returning
+-- human-readable answer
 --
-info :: IO ()
-info = do
+serverState :: IO String
+serverState = do
     let pidFile = "tmp/sllar-server.pid"
-        (p, y) = (putStrLn, yellow)
-    sharePath <- getDataFileName ""
-    Just config' <- config
-    tmpFileExistence <- doesFileExist $ sharePath ++ pidFile
+    sharedPath <- getDataFileName ""
+    doesPidFileExists <- doesFileExist $ sharedPath ++ pidFile
+    if doesPidFileExists
+       then do processExistence <- readFile (sharedPath ++ pidFile) >>= isProcessExists
+               return $ if processExistence then "running" else "stopped"
+       else return "stopped"
 
-    (f, s) <- if tmpFileExistence
-                then do pid <- readFile $ sharePath ++ pidFile
-                        processExistence <- isProcessExists pid
-                        return $ if processExistence
-                                   then (green, "running (pid " ++ pid ++ ")")
-                                   else (red, "stopped")
-                else return (red, "stopped")
 
-    -- formatting nice message
-    p ""
-    p $ "Sllar-server. Version " ++ Version.version
-    p "For additional information visit https://github.com/grsmv/sllar"
-    p ""
-    y "Current state:    "; f $ s ++ "\n"
-    y "Port:             "; print $ port config'
-    y "Data folder:      "; p sharePath
-    y "Packages folder:  "; p   "├── packages/"
-    y "Config file:      "; p   "├── config"
-    y "PID file:         "; p $ "└── " ++ pidFile
-    p ""
+--
+-- Raising exit with message if number of arguments is incorrect
+--
+argFailure :: IO ()
+argFailure = failDown "No arguments specified"
 
--- infoTemplated :: IO ()
--- infoTemplated =
 
--- Needed data:
---   version
---   state
---   port
---   pidFile
+--
+-- Wrapper, that checks if any argument specified
+-- Input: arguments, function to applicationy if arguments exists
+-- Output: wrapped function
+--
+withArgs :: [String] -> IO () -> IO ()
+withArgs args f = if null args
+                    then failDown "No arguments specified"
+                    else f

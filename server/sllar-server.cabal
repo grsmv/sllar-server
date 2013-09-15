@@ -15,6 +15,7 @@ cabal-version:      >=1.8
 
 data-dir:           resources
 data-files:         html/*.html tmp/.keep config
+                    templates/*.template
                     packages/erato/erato-0.0.1.sllar.tar
                     packages/erato/erato-0.0.2.sllar.tar
                     packages/list/list-0.0.1.sllar.tar
@@ -44,6 +45,7 @@ Executable sllar-server
     tar,
     template,
     temporary,
+    text,
     unix,
     yaml
 
