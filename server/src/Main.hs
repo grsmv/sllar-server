@@ -30,8 +30,8 @@ main = do
         "stop"     -> Server.stop
         "renew"    -> putStrLn "renew info"
         "info"     -> info
-        "help"     -> putStrLn "help"
-        _          -> putStrLn "help"
+        "help"     -> help
+        _          -> help
 
 
 --
@@ -41,24 +41,36 @@ main = do
 --
 info :: IO ()
 info = do
-
     sharedPath <- getDataFileName ""
-    infoTemplate <- getDataFileName "resources/templates/info.template" >>= readFile
-    headerContents <- getDataFileName "resources/templates/header.template" >>= readFile
+    infoTemplate <- getDataFileName "templates/info.template" >>= readFile
+    headerContents <- getDataFileName "templates/header.template" >>= readFile
     port <- Config.port . fromMaybe (Config.Config 5000) <$> Config.config
     state <- serverState
 
     let context assocs x = fromMaybe "" $ lookup x assocs
-        infoContext :: Context
-        infoContext = context [ ("header", T.pack headerContents)
-                              , ("state", T.pack state)
-                              , ("port",  T.pack $ show port)
-                              , ("numberOfPackages", T.pack "42")
-                              , ("sharedPath", T.pack sharedPath)
-                              ]
+        ctx :: Context
+        ctx = context [ ("header", T.pack headerContents)
+                      , ("state", T.pack state)
+                      , ("port",  T.pack $ show port)
+                      , ("numberOfPackages", T.pack "42")
+                      , ("sharedPath", T.pack sharedPath)
+                      ]
 
-    S.putStrLn $ E.encodeUtf8 $ substitute (T.pack infoTemplate) infoContext
+    S.putStrLn $ E.encodeUtf8 $ substitute (T.pack infoTemplate) ctx
 
+
+--
+--
+--
+help :: IO ()
+help = do
+    helpTemplate <- getDataFileName "templates/help.template" >>= readFile
+    headerContents <- getDataFileName "templates/header.template" >>= readFile
+    let context assocs x = fromMaybe "" $ lookup x assocs
+        ctx :: Context
+        ctx = context [ ("header", T.pack headerContents) ]
+
+    S.putStrLn $ E.encodeUtf8 $ substitute (T.pack helpTemplate) ctx
 
 --
 -- Cheking if process running right now
@@ -76,6 +88,7 @@ isProcessExists pid = do
 --
 -- Checking server running state and returning
 -- human-readable answer
+-- todo: check why state is always "stopped"
 --
 serverState :: IO String
 serverState = do
@@ -89,18 +102,9 @@ serverState = do
 
 
 --
--- Raising exit with message if number of arguments is incorrect
---
-argFailure :: IO ()
-argFailure = failDown "No arguments specified"
-
-
---
 -- Wrapper, that checks if any argument specified
 -- Input: arguments, function to applicationy if arguments exists
 -- Output: wrapped function
 --
 withArgs :: [String] -> IO () -> IO ()
-withArgs args f = if null args
-                    then failDown "No arguments specified"
-                    else f
+withArgs args f = if null args then help else f

@@ -1,5 +1,4 @@
 $header
-
                       Current state  :  $state
                                Port  :  $port
                Packages in database  :  $numberOfPackages (omg, we are popular)
