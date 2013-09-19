@@ -81,9 +81,7 @@ help = do
 isProcessExists :: String -> IO Bool
 isProcessExists pid = do
     (_, stdout, _) <- readProcessWithExitCode "ps" ["-ewwo", "pid,args"] ""
-    return $ case length $ filter (=~ ("^" ++ pid ++ " ")) (lines stdout) of
-               0 -> False
-               _ -> True
+    return $ not . null $ filter (=~ ("^" ++ pid ++ " ")) (lines stdout)
 
 
 --

@@ -75,12 +75,11 @@ router :: Request -> IO Response
 router request = do
     let Request rtype' path' options' = request
         (html, json, text) = ("text/html", "application/json", "text/plain")
-        (bodyIO, respType) = case (rtype', path') of
-                                  (GET,    "/packages") -> (ExposedPackage.allPackagesAsJson, json)
-                                  (POST,   "/publish")  -> (publish options',                 text)
-
-                                  -- everything else, including index
-                                  _ -> (getDataFileName "html/index.html" >>= readFile, html)
+        (bodyIO, respType) =
+          case (rtype', path') of
+               (GET,  "/packages") -> (ExposedPackage.allJson,       json)
+               (POST, "/publish")  -> (publish options',             text)
+               _ -> (getDataFileName "html/index.html" >>= readFile, html)
     body' <- bodyIO
     return (Response body' respType)
 

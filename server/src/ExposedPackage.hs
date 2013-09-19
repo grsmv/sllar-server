@@ -2,8 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module ExposedPackage
-    ( allPackages
-    , allPackagesAsJson
+    ( allJson
     , ExposedPackage(..)
     , Version(..)) where
 
@@ -45,17 +44,19 @@ instance ToJSON Version
 -- Input: list of packages
 -- Output: json output
 --
-allPackagesAsJson :: IO String
-allPackagesAsJson = do
-    packages <- allPackages
+allJson :: IO String
+allJson = do
+    packages <- all'
     return $ BL.unpack (encode packages)
 
 
 --
+-- Getting all registered packages
+-- Output: list of values of ExposedPackage type
+-- TODO: decompose this function
 --
---
-allPackages :: IO [ExposedPackage]
-allPackages =
+all' :: IO [ExposedPackage]
+all' =
     withConnection $ \h -> do
         ls <- SQLite.execStatement h "select * from packages order by name"
 
