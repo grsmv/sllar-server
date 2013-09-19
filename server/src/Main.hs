@@ -72,6 +72,7 @@ help = do
 
     S.putStrLn $ E.encodeUtf8 $ substitute (T.pack helpTemplate) ctx
 
+
 --
 -- Cheking if process running right now
 -- Input: Process ID
