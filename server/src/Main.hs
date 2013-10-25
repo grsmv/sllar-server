@@ -6,6 +6,7 @@ import Common
 import qualified Config
 import Paths_sllar_server
 import qualified Server
+import qualified Templates
 --import qualified Version
 
 -- system
@@ -42,35 +43,31 @@ main = do
 info :: IO ()
 info = do
     sharedPath <- getDataFileName ""
-    infoTemplate <- getDataFileName "templates/info.template" >>= readFile        -- todo: to heredoc
-    headerContents <- getDataFileName "templates/header.template" >>= readFile    -- todo: to heredoc
     port <- Config.port . fromMaybe (Config.Config 5000) <$> Config.config
     state <- serverState
 
     let context assocs x = fromMaybe "" $ lookup x assocs
         ctx :: Context
-        ctx = context [ ("header", T.pack headerContents)
+        ctx = context [ ("header", T.pack Templates.header)
                       , ("state", T.pack state)
                       , ("port",  T.pack $ show port)
                       , ("numberOfPackages", T.pack "42")
                       , ("sharedPath", T.pack sharedPath)
                       ]
 
-    S.putStrLn $ E.encodeUtf8 $ substitute (T.pack infoTemplate) ctx
+    S.putStrLn $ E.encodeUtf8 $ substitute (T.pack Templates.info) ctx
 
 
 --
---
+-- Showing helping information
+-- Output: IO action
 --
 help :: IO ()
-help = do
-    helpTemplate <- getDataFileName "templates/help.template" >>= readFile         -- todo: to heredoc
-    headerContents <- getDataFileName "templates/header.template" >>= readFile     -- todo: to heredoc
-    let context assocs x = fromMaybe "" $ lookup x assocs
-        ctx :: Context
-        ctx = context [ ("header", T.pack headerContents) ]
-
-    S.putStrLn $ E.encodeUtf8 $ substitute (T.pack helpTemplate) ctx
+help =
+    S.putStrLn $ E.encodeUtf8 $ substitute (T.pack Templates.help) ctx
+      where
+        context assocs x = fromMaybe "" $ lookup x assocs
+        ctx = context [ ("header", T.pack Templates.header) ] :: Context
 
 
 --
