@@ -48,8 +48,7 @@ info = do
 
     let context assocs x = fromMaybe "" $ lookup x assocs
         ctx :: Context
-        ctx = context [ ("header", T.pack Templates.header)
-                      , ("state", T.pack state)
+        ctx = context [ ("state", T.pack state)
                       , ("port",  T.pack $ show port)
                       , ("numberOfPackages", T.pack "42")
                       , ("sharedPath", T.pack sharedPath)
@@ -67,7 +66,7 @@ help =
     S.putStrLn $ E.encodeUtf8 $ substitute (T.pack Templates.help) ctx
       where
         context assocs x = fromMaybe "" $ lookup x assocs
-        ctx = context [ ("header", T.pack Templates.header) ] :: Context
+        ctx = context [] :: Context
 
 
 --
