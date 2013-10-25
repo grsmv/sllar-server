@@ -64,17 +64,17 @@ withArgs args f = if null args
 --
 envInfo :: IO ()
 envInfo = do
-  configPath <- getDataFileName "config"
-  config' <- config
-  let repos = repositories $ fromMaybe (Config []) config'
-      p = putStrLn
+    configPath <- getDataFileName "config"
+    config' <- config
+    let repos = repositories $ fromMaybe (Config []) config'
+        p = putStrLn
 
-  p $ "Sllar-client. Version " ++ Version.version
-  p "For additional information visit https://github.com/grsmv/sllar \n"
-  p "Config file:"
-  p $ "  " ++ configPath ++ "\n"
+    p $ "Sllar-client. Version " ++ Version.version
+    p "For additional information visit https://github.com/grsmv/sllar \n"
+    p "Config file:"
+    p $ "  " ++ configPath ++ "\n"
 
-  p "Repositories:"
-  if not . null $ repos
-    then mapM_ (p . ("  " ++)) repos
-    else p "  [!] There's no registered repositories"
+    p "Repositories:"
+    if not . null $ repos
+       then mapM_ (p . ("  " ++)) repos
+       else p "  [!] There's no registered repositories"

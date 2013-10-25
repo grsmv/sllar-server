@@ -23,8 +23,8 @@ dbName = "database.sqlite"
 -- columns and properties
 -- Output: list of tables with descriptions
 --
-dataTables :: [(String, [(String, SQLType, [Clause])])]
-dataTables =
+schema :: [(String, [(String, SQLType, [Clause])])]
+schema =
     [ ("packages",
         --  column name     column type                additional properties
           [ ("id",          SQLInt NORMAL False False, [PrimaryKey True, Unique])
@@ -51,12 +51,12 @@ create :: IO ()
 create = do
     handle <- Paths.getDataFileName dbName >>= openConnection
     mapM_ (\(name, columns) ->
-         defineTable handle
-           Table
-             { tabName = name
-             , tabColumns = map (\(n, t, c) -> Column n t c) columns
-             , tabConstraints = [] }
-       ) dataTables
+            defineTable handle
+              Table
+                { tabName = name
+                , tabColumns = map (\(n, t, c) -> Column n t c) columns
+                , tabConstraints = [] }
+          ) schema
     return ()
 
 

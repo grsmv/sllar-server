@@ -29,13 +29,12 @@ data ExposedPackage = ExposedPackage
                     , versions :: [Version]
                     } deriving (Show, Generic)
 
-instance ToJSON ExposedPackage
-
 data Version = Version
              { version
              , uploadedAt :: String }
              deriving (Show, Generic)
 
+instance ToJSON ExposedPackage
 instance ToJSON Version
 
 
@@ -54,6 +53,7 @@ allJson = do
 -- Getting all registered packages
 -- Output: list of values of ExposedPackage type
 -- TODO: decompose this function
+--       (versions getting, formatting a value of ExposedPackage type)
 --
 all' :: IO [ExposedPackage]
 all' =
