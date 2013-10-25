@@ -44,6 +44,7 @@ Executable sllar-server
     syb,
     tar,
     template,
+    template-haskell,
     temporary,
     text,
     unix,

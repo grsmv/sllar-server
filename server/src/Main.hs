@@ -42,8 +42,8 @@ main = do
 info :: IO ()
 info = do
     sharedPath <- getDataFileName ""
-    infoTemplate <- getDataFileName "templates/info.template" >>= readFile
-    headerContents <- getDataFileName "templates/header.template" >>= readFile
+    infoTemplate <- getDataFileName "templates/info.template" >>= readFile        -- todo: to heredoc
+    headerContents <- getDataFileName "templates/header.template" >>= readFile    -- todo: to heredoc
     port <- Config.port . fromMaybe (Config.Config 5000) <$> Config.config
     state <- serverState
 
@@ -64,8 +64,8 @@ info = do
 --
 help :: IO ()
 help = do
-    helpTemplate <- getDataFileName "templates/help.template" >>= readFile
-    headerContents <- getDataFileName "templates/header.template" >>= readFile
+    helpTemplate <- getDataFileName "templates/help.template" >>= readFile         -- todo: to heredoc
+    headerContents <- getDataFileName "templates/header.template" >>= readFile     -- todo: to heredoc
     let context assocs x = fromMaybe "" $ lookup x assocs
         ctx :: Context
         ctx = context [ ("header", T.pack headerContents) ]
