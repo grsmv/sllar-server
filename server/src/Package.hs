@@ -12,9 +12,7 @@ module Package
     , info
     , toTuple
     , publish
-    , defaultFields
-    , unusedFields
-    , correct ) where
+    ) where
 
 -- Sllar
 import Database
@@ -23,6 +21,7 @@ import qualified Paths_sllar_server as Paths
 -- System
 import Codec.Archive.Tar (extract)
 import Control.Monad
+import Control.Applicative ((<$>), (<*>))
 import Data.Data
 import Data.DateTime (getCurrentTime)
 import Data.List
@@ -32,7 +31,6 @@ import GHC.Generics
 import qualified Data.ByteString.Base64 as Base64 (decodeLenient)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.Generics as G
-import qualified Data.List.Utils as List
 import qualified Data.String.Utils as String
 import qualified Database.SQLite as SQLite
 import System.Directory
@@ -55,7 +53,19 @@ data Package = Package
              , tracker :: Maybe String
              } deriving (Data, Typeable, Show, Generic, Eq)
 
-instance FromJSON Package
+instance FromJSON Package where
+    parseJSON (Object v) =
+      Package <$>
+      (v .:  "name")        <*>
+      (v .:  "description") <*>
+      (v .:  "author")      <*>
+      (v .:  "version")     <*>
+      (v .:? "maintainer")  <*>
+      (v .:? "license")     <*>
+      (v .:? "copyright")   <*>
+      (v .:? "homepage")    <*>
+      (v .:? "tracker")
+
 
 
 --
@@ -64,43 +74,7 @@ instance FromJSON Package
 -- Output: instance of type Package or nothing
 --
 info :: BS.ByteString -> IO (Maybe Package)
-info s = return (decode (BS.pack (correct (BS.unpack s))) :: Maybe Package)
-
-
---
--- Getting type's fields
--- Output: type's fields as list of strings
--- todo: remove
---
-defaultFields :: [String]
-defaultFields = List.replace ["versions"] ["version"] fields
-    where fields = constrFields . toConstr $ package
-          package = Package "" "" "" "" j j j j j  -- todo: fix this crap
-          j = Just ""
-
-
---
--- Analyzing raw data from YAML file and detecting fields,
--- that not present in YAML file (why?)
--- Input: data, all fields thar should be presented
--- Output: fields, that not presented in input data
--- todo: remove
---
-unusedFields :: String -> [String] -> [String]
-unusedFields str =
-    filter (\e -> not $ (e ++ ":") `isInfixOf` String.replace " " "" str)
-
-
---
--- Corecting data in YAML file (adding fields that not presented,
--- but which should be presented).
--- Input: raw data from YAML files
--- Output: corrected data
--- todo: remove
---
-correct :: String -> String
-correct text = foldl (\acc e -> acc ++ e ++ ": \n") text fields
-               where fields = unusedFields text defaultFields
+info s = return (decode s :: Maybe Package)
 
 
 --

@@ -1,17 +1,31 @@
+{-# LANGUAGE QuasiQuotes #-}
+
 module PackageSpec where
 
 import Package
 import Test.Hspec
+import Heredoc
 import qualified Data.ByteString.Char8 as BS
+
+correctExample = [heredoc|
+    name: package
+    description: example description
+    author: me
+    version: 0.0.1
+|]
+
+incorrectExample = [heredoc|
+    name: package
+    description: long story short
+    author: me
+|]
 
 main :: IO ()
 main = hspec $ do
 
-    let exampleSllarFileContents = "name: Example\ndescription: Example\nauthor: me\nversion: 0.1.1\n"
-
     describe "Package.info" $ do
-        it "should present Sllar package information in system-readable format if all mandatory fields filled" $ do
-            package <- BS.readFile "fixtures/example.yaml" >>= info
+        it "should parse when all mandatory fields filled" $ do
+            package <- info $ BS.pack correctExample
             package `shouldBe` Just Package { name = "package"
                                             , description = "example description"
                                             , author = "me"
@@ -23,32 +37,21 @@ main = hspec $ do
                                             , homepage = Nothing
                                             }
 
-        it "should return Nothing if one of mandatory fields not filled" $ do
-            package <- BS.readFile "fixtures/wrong_example.yaml" >>= info
+        it "shouldn't parse when not all mandatory fields filled" $ do
+            package <- info $ BS.pack incorrectExample
             package `shouldBe` Nothing
 
-
-    -- todo: remove this after closing issue #15
-    describe "Package.defaultFields" $
-        it "should return fields of Package type" $
-            defaultFields `shouldBe` ["name", "description", "author", "version", "maintainer", "license", "copyright", "homepage", "tracker"]
-
-
-    -- todo: remove this after closing issue #15
-    describe "Package.unusedFields" $
-        it "should return fields, that not used in Sllar file" $
-            unusedFields exampleSllarFileContents defaultFields `shouldBe` ["maintainer", "license", "copyright", "homepage", "tracker"]
-
-
-    -- todo: remove this after closing issue #15
-    describe "Package.correct" $
-        it "should add fields, that wasn't pesent in Sllar file, uploaded from client" $
-            correct exampleSllarFileContents `shouldBe` exampleSllarFileContents ++ "maintainer: \nlicense: \ncopyright: \nhomepage: \ntracker: \n"
-
-
     describe "Package.toTuple" $
-        it "should present Package as tuple" $ do
-            package <- BS.readFile "fixtures/example.yaml" >>= info
+        it "should convert Package to list of tuples" $ do
+            package <- info $ BS.pack correctExample
             let Just pkg = package
-            toTuple pkg `shouldBe` [("name", "package"), ("description", "example description"), ("author", "me"), ("version", "0.0.1"),
-                                    ("maintainer", ""), ("license", ""), ("copyright", ""), ("homepage", ""), ("tracker", "")]
+            toTuple pkg `shouldBe` [ ("name",         "package")
+                                   , ("description",  "example description")
+                                   , ("author",       "me")
+                                   , ("version",      "0.0.1")
+                                   , ("maintainer",   "")
+                                   , ("license",      "")
+                                   , ("copyright",    "")
+                                   , ("homepage",     "")
+                                   , ("tracker",      "")
+                                   ]
