@@ -70,6 +70,7 @@ info s = return (decode (BS.pack (correct (BS.unpack s))) :: Maybe Package)
 --
 -- Getting type's fields
 -- Output: type's fields as list of strings
+-- todo: remove
 --
 defaultFields :: [String]
 defaultFields = List.replace ["versions"] ["version"] fields
@@ -83,6 +84,7 @@ defaultFields = List.replace ["versions"] ["version"] fields
 -- that not present in YAML file (why?)
 -- Input: data, all fields thar should be presented
 -- Output: fields, that not presented in input data
+-- todo: remove
 --
 unusedFields :: String -> [String] -> [String]
 unusedFields str =
@@ -94,6 +96,7 @@ unusedFields str =
 -- but which should be presented).
 -- Input: raw data from YAML files
 -- Output: corrected data
+-- todo: remove
 --
 correct :: String -> String
 correct text = foldl (\acc e -> acc ++ e ++ ": \n") text fields
@@ -113,26 +116,16 @@ toTuple pkg =
             get f = getField f pkg
             fields = constrFields . toConstr $ pkg
 
+            -- Getting contents of a record field by field name presented as String
+            getField :: (Data r, Typeable v) => String -> r -> v
+            getField fieldName rec = gmapQi i (e `G.extQ` id) rec
+                where i = fieldName `fieldIndex` rec
+                      e _ = error "type mismatch"
 
---
--- Getting contents of a record field by field name presented as String
--- Input: key as String, record
--- Output: Value of a field
---
-getField :: (Data r, Typeable v) => String -> r -> v
-getField fieldName rec = gmapQi i (e `G.extQ` id) rec
-    where i = fieldName `fieldIndex` rec
-          e _ = error "type mismatch"
-
-
---
--- Order in range of record's fields
--- Input: field name as String, record
--- Output: position
---
-fieldIndex :: (Data r) => String -> r -> Int
-fieldIndex fieldName rec =
-    fromMaybe 0 $ fieldName `elemIndex` (constrFields . toConstr $ rec)
+                      -- Order in range of record's fields
+                      fieldIndex :: (Data r) => String -> r -> Int
+                      fieldIndex fieldName' rec' =
+                          fromMaybe 0 $ fieldName' `elemIndex` (constrFields . toConstr $ rec')
 
 
 --
