@@ -7,13 +7,9 @@
 module Main where
 
 import Network.HTTP.Conduit (simpleHttp)
-import Control.Applicative ((<$>))
-import Control.Monad ((>=>), join, liftM)
+import Control.Monad ((>=>))
 import Control.Concurrent.Async
 import qualified Data.ByteString.Lazy as Lazy
-
-pages :: IO [String]
-pages = lines <$> readFile "links.txt"
 
 -- todo: http error catching and displaying
 -- todo: async data collecting
@@ -22,12 +18,146 @@ main :: IO ()
 main = concurrent
 
 sequental, concurrent :: IO ()
-sequental =
-  do pages' <- pages
-     mapM_ (simpleHttp >=> Lazy.putStr) pages'
+sequental = mapM_ (simpleHttp >=> Lazy.putStr) (map ("http://en.wikipedia.org/wiki/" ++) languages)
 
 concurrent =
-  do pages' <- pages
      mapM_ (\page -> do a <- async $ simpleHttp page
                         x <- wait a
-                        Lazy.putStr x) pages'
+                        Lazy.putStr x) (map ("http://en.wikipedia.org/wiki/" ++) [languages !! 1])
+
+languages :: [String]
+languages =
+    [ "ALGOL_58"
+    , "ALGOL_60"
+    , "ALGOL_68"
+    , "AMPL"
+    , "AWK_(programming_language)"
+    , "Ada_(programming_language)"
+    , "Agda_(theorem_prover)"
+    , "Algol-W"
+    , "Apple_BASIC"
+    , "Assembly_language"
+    , "Atari_BASIC"
+    , "AutoHotkey"
+    , "AutoIt"
+    , "BASIC"
+    , "BBC_BASIC"
+    , "BCPL"
+    , "B_(programming_language)"
+    , "Basic4ppc"
+    , "BitC"
+    , "Bluespec_Inc."
+    , "C%2B%2B"
+    , "C*"
+    , "CAL_(Quark_Framework)#CAL"
+    , "CLU_(programming_language)"
+    , "COMAL"
+    , "C_(programming_language)"
+    , "Caché_ObjectScript"
+    , "Caml"
+    , "Cayenne_(programming_language)"
+    , "Cilk"
+    , "Clean_(programming_language)"
+    , "Clojure"
+    , "CoffeeScript"
+    , "Combined_Programming_Language"
+    , "Commodore_BASIC"
+    , "Concepts_(C%2B%2B)"
+    , "Curry_(programming_language)"
+    , "Cyclone_(programming_language)"
+    , "Cyclone_programming_language"
+    , "D_(programming_language)"
+    , "ECMAScript"
+    , "Eiffel_(programming_language)"
+    , "Elm_(programming_language)"
+    , "Epigram_(programming_language)"
+    , "Erlang_(programming_language)"
+    , "Escher_(programming_language)"
+    , "FORTRAN"
+    , "F_Sharp_(programming_language)"
+    , "Falcon_(programming_language)"
+    , "Felix_(programming_language)"
+    , "Fortran_(programming_language)"
+    , "GRASS_(programming_language)"
+    , "Gambas"
+    , "GameMonkey_Script"
+    , "Generics_in_Java"
+    , "Go_(programming_language)"
+    , "Gofer_(programming_language)"
+    , "Haskell_(programming_language)"
+    , "Hope_(programming_language)"
+    , "ISWIM"
+    , "Io_(programming_language)"
+    , "Isabelle_theorem_prover"
+    , "JOSS"
+    , "JavaScript"
+    , "Java_(programming_language)"
+    , "Kent_Recursive_Calculator"
+    , "LPC_(programming_language)"
+    , "Language_Integrated_Query"
+    , "Liberty_BASIC"
+    , "Limbo_(programming_language)"
+    , "Lisp_(programming_language)"
+    , "Lua_(programming_language)"
+    , "ML_(programming_language)"
+    , "MUMPS"
+    , "Machine_code"
+    , "Mercury_(programming_language)"
+    , "Mesa_programming_language"
+    , "Microsoft_BASIC"
+    , "MiniD"
+    , "Miranda_(programming_language)"
+    , "Modula"
+    , "Modula-2"
+    , "Modula-3"
+    , "Nu_(programming_language)"
+    , "OCaml"
+    , "Oberon-2"
+    , "Oberon_(programming_language)"
+    , "Objective-C"
+    , "Objective-J"
+    , "Opa_(programming_language)"
+    , "Orwell_(programming_language)"
+    , "PACT_I"
+    , "PHP"
+    , "PL/I"
+    , "Pascal_(programming_language)"
+    , "Perl"
+    , "Perl_6"
+    , "Pike_(programming_language)"
+    , "Processing_(programming_language)"
+    , "Profile_Scripting_Language"
+    , "Prolog"
+    , "Python_(programming_language)"
+    , "Qi_(programming_language)"
+    , "Qore_Language"
+    , "REALbasic"
+    , "Ratfor"
+    , "Reia_(programming_language)"
+    , "Rust_(programming_language)"
+    , "SASL_(programming_language)"
+    , "SISAL"
+    , "SNOBOL"
+    , "Scala_(programming_language)"
+    , "Scheme_(programming_language)"
+    , "Sed"
+    , "Seed7"
+    , "Sinclair_BASIC"
+    , "Smalltalk_80"
+    , "Speedcoding"
+    , "Split-C"
+    , "Squirrel_(programming_language)"
+    , "Standard_ML"
+    , "TI-BASIC"
+    , "TOM_(object-oriented_programming_language)"
+    , "Timber_(programming_language)"
+    , "Unified_Parallel_C"
+    , "Unix_shell"
+    , "Vala_(programming_language)"
+    , "Verilog"
+    , "Visual_Basic"
+    , "Visual_Basic_.NET"
+    , "Windows_PowerShell"
+    , "Zonnon"
+    , "Ωmega_interpreter"
+    ]
