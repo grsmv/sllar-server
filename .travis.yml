@@ -1,0 +1,5 @@
+language: haskell
+script:
+  - cd server && cabal install && cd spec && make
+notifications:
+  email: false
