@@ -1,5 +1,7 @@
 language: haskell
+before_install:
+  - cd server
 script:
-  - cd server && cabal install && cd spec && make
+  - cd spec && make
 notifications:
   email: false
