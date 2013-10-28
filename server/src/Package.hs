@@ -179,7 +179,7 @@ save pkg = withConnection $ \h -> do
 
     currentDateTime <- getCurrentTime
 
-    let packageInfo = Package.toTuple pkg
+    let packageInfo = toTuple pkg
 
         -- updatimf `versions` table with info from package
         createVersion packageId =

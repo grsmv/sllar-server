@@ -42,6 +42,7 @@ instance ToJSON Version
 -- Processing values of Package type into JSON
 -- Input: list of packages
 -- Output: json output
+-- todo: <$>
 --
 allJson :: IO String
 allJson = do
@@ -70,13 +71,13 @@ all' =
                        t k = extractText . fromMaybe (SQLite.Text "") . lookup k
                        pId row = fromIntegral $ i "id" row
 
-                       -------------------------------------------------
-
                        getVersionsFor :: Int -> IO [Version]
                        getVersionsFor packageId' = do
                            versionsQuery <- SQLite.execStatement h $ "select * from versions where package_id = " ++ show packageId' ++ " order by uploaded_at"
-                           let produceVersionsFrom row = Version { version = t "version" row
-                                                                 , uploadedAt = t "uploaded_at" row}
+                           let produceVersionsFrom row = Version
+                                                       { version    = t "version" row
+                                                       , uploadedAt = t "uploaded_at" row
+                                                       }
 
                            case versionsQuery :: Either String [[SQLite.Row SQLite.Value]] of
                                Right [rows'] ->
@@ -84,17 +85,20 @@ all' =
 
                        -------------------------------------------------
 
+                       -- todo: move to outer function
+
                        producePackageFrom row = do
-                       packageVersions <- getVersionsFor $ pId row
-                       return ExposedPackage { packageId   = pId row
-                                             , name        = t "name" row
-                                             , description = t "description" row
-                                             , author      = t "author" row
-                                             , maintainer  = t "maintainer" row
-                                             , license     = t "license" row
-                                             , copyright   = t "copyright" row
-                                             , homepage    = t "homepage" row
-                                             , tracker     = t "tracker" row
-                                             , versions    = packageVersions }
+                         packageVersions <- getVersionsFor $ pId row
+                         return ExposedPackage { packageId   = pId row
+                                               , name        = t "name"        row
+                                               , description = t "description" row
+                                               , author      = t "author"      row
+                                               , maintainer  = t "maintainer"  row
+                                               , license     = t "license"     row
+                                               , copyright   = t "copyright"   row
+                                               , homepage    = t "homepage"    row
+                                               , tracker     = t "tracker"     row
+                                               , versions    = packageVersions
+                                               }
 
                    mapM producePackageFrom rows
