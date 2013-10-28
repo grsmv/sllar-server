@@ -159,7 +159,7 @@ publish options = do
                      unless doesPackageNameFolderExists $ createDirectory packageFolder
 
                      copyFile tmpFile package
-                     savePackageInDatabase conf
+                     save conf
                      return "ok"
 
                    else return "version_exists"
@@ -174,8 +174,8 @@ publish options = do
 -- Input: Package value
 -- todo: report errors during ratabase update
 --
-savePackageInDatabase :: Package -> IO ()
-savePackageInDatabase pkg = withConnection $ \h -> do
+save :: Package -> IO ()
+save pkg = withConnection $ \h -> do
 
     currentDateTime <- getCurrentTime
 
