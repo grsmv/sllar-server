@@ -7,9 +7,9 @@ import qualified Config
 import Paths_sllar_server
 import qualified Server
 import qualified Templates
---import qualified Version
 
 -- system
+import Data.Version (showVersion)
 import Data.Text.Template
 import Data.Maybe (fromMaybe)
 import Control.Applicative ((<$>))
@@ -50,6 +50,7 @@ info = do
         ctx :: Context
         ctx = context [ ("state", T.pack state)
                       , ("port",  T.pack $ show port)
+                      , ("version", T.pack $ showVersion version)
                       , ("numberOfPackages", T.pack "42")
                       , ("sharedPath", T.pack sharedPath)
                       ]

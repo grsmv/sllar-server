@@ -27,6 +27,7 @@ info = [heredoc|
         Current state  :  $state
                  Port  :  $port
   Packages registered  :  $numberOfPackages
+               Version :  $version
 
         Resources dir  :  $sharedPath
              Database  :    ├── database.sqlite
