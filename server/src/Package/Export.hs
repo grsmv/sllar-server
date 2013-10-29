@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module ExposedPackage
+module Package.Export
     ( allJson
     , ExposedPackage(..)
     , Version(..)) where

@@ -7,7 +7,7 @@
 -- of *.sllar files, that coming with all Sllar packages.
 -- It's used during reading and verification of incoming package.
 
-module Package
+module Package.Import
     ( Package(..)
     , info
     , toTuple
@@ -188,7 +188,7 @@ save pkg = withConnection $ \h -> do
               ("package_id",  show packageId),
               ("uploaded_at", show currentDateTime)]
 
-    ls <- SQLite.execStatement h $ "select id from packages where name='" ++ Package.name pkg ++ "'"
+    ls <- SQLite.execStatement h $ "select id from packages where name='" ++ Package.Import.name pkg ++ "'"
 
     case ls :: Either String [[SQLite.Row SQLite.Value]] of
         Right [row] ->
