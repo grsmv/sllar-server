@@ -6,12 +6,12 @@ import Common
 import Config
 import qualified Package
 import qualified PackageList
-import qualified Version
 import Paths_sllar_client
 
 -- System
 import Control.Monad (when)
 import Data.Maybe
+import Data.Version (showVersion)
 import System.Environment (getArgs)
 
 
@@ -69,7 +69,7 @@ envInfo = do
     let repos = repositories $ fromMaybe (Config []) config'
         p = putStrLn
 
-    p $ "Sllar-client. Version " ++ Version.version
+    p $ "Sllar-client. Version " ++ showVersion version
     p "For additional information visit https://github.com/grsmv/sllar \n"
     p "Config file:"
     p $ "  " ++ configPath ++ "\n"
