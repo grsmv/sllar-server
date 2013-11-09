@@ -4,7 +4,8 @@
 module Package.Export
     ( allJson
     , ExposedPackage(..)
-    , Version(..)) where
+    , Version(..)
+    ) where
 
 -- sllar
 import Database

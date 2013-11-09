@@ -2,7 +2,6 @@
 
 module Main where
 
-import Common
 import qualified Config
 import Paths_sllar_server
 import qualified Server

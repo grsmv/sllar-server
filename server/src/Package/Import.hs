@@ -67,7 +67,6 @@ instance FromJSON Package where
       (v .:? "tracker")
 
 
-
 --
 -- Presenting Sllar package information in system-readable format
 -- Input: ByteString with *.sllar file contents

@@ -2,7 +2,7 @@
 
 module PackageSpec where
 
-import Package
+import Package.Import
 import Test.Hspec
 import Heredoc
 import qualified Data.ByteString.Char8 as BS

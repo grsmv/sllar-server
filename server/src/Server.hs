@@ -104,8 +104,9 @@ template Response { body = b, restype = t } =
 --
 parseRequest :: [String] -> Request
 parseRequest lns =
-    case words (head lns) of
-      [t, p, _] -> Request { rtype=read t, path=p, options=parseRequestHelper(tail lns, []) }
+    Request { rtype=read t, path=p, options=parseRequestHelper(tail lns, []) }
+      where
+        [t, p, _] = words (head lns)
 
 
 --
