@@ -1,4 +1,4 @@
-module Common
+module Sllar.Common
   ( failDown
   , red
   , green

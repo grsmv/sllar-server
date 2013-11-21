@@ -1,12 +1,14 @@
 {-# LANGUAGE QuasiQuotes #-}
 
-module PackageSpec where
+module Main where
 
-import Package.Import
+import Sllar.Package.Import
+import Sllar.Heredoc
+
 import Test.Hspec
-import Heredoc
 import qualified Data.ByteString.Char8 as BS
 
+correctExample, incorrectExample :: String
 correctExample = [heredoc|
     name: package
     description: example description

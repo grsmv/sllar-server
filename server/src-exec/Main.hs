@@ -2,10 +2,10 @@
 
 module Main where
 
-import qualified Config
+import qualified Sllar.Config as Config
+import qualified Sllar.Server as Server
+import qualified Sllar.Templates as Templates
 import Paths_sllar_server
-import qualified Server
-import qualified Templates
 
 -- system
 import Data.Version (showVersion)

@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Config where
+module Sllar.Config where
 
 -- Sllar
 import Paths_sllar_server

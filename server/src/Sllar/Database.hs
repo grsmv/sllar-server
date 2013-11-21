@@ -4,7 +4,7 @@
 --
 -- NB: `PRAGMA foreign_keys = ON` for enabling foreign keys support
 
-module Database (withConnection) where
+module Sllar.Database (withConnection) where
 
 -- system
 import Control.Exception (bracket)

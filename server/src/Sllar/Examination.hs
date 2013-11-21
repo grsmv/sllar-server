@@ -1,10 +1,10 @@
-module Examination
+module Sllar.Examination
   ( checkDirectory
   , checkFile
   , checkEnv
   ) where
 
-import Common
+import Sllar.Common
 import System.Directory
 import System.Environment
 

@@ -1,50 +1,77 @@
+-- https://github.com/Toxaris/pts/blob/master/pts.cabal
+
 name:               sllar-server
 version:            0.0.1
 author:             Serge Gerasimov
-maintainer:         Serge Gerasimov <mail@grsmv.com>
-synopsis:           Package system for SeqeunceL programming language. Server
-description:
-  Cabal-like package system for SeqeunceL programming language. Server component.
-  It allows to create and maintain package repositories.
+maintainer:         Serge Gerasimov <sgeras@softserveinc.com>
+synopsis:           Server side of package manager for SequenceL programming language.
+description:        Server side of package manager for SequenceL programming language.
 category:           Utilities
 homepage:           https://github.com/grsmv/sllar
 license:            MIT
 license-file:       LICENSE
 build-type:         Simple
 cabal-version:      >=1.8
-
 data-dir:           resources
 data-files:         html/*.html tmp/.keep config
 extra-source-files: src/*.hs
 
-Executable sllar-server
-  main-is:          Main.hs
+library
   hs-source-dirs:   src
+  exposed-modules:  Sllar.Package.Import
+                    Sllar.Package.Export
+                    Sllar.Common
+                    Sllar.Config
+                    Sllar.Database
+                    Sllar.Examination
+                    Sllar.Heredoc
+                    Sllar.Server
+                    Sllar.Templates
   other-modules:    Paths_sllar_server
+  build-depends:    MissingH
+                    , aeson
+                    , ansi-terminal
+                    , base
+                    , base64-bytestring
+                    , bytestring
+                    , datetime
+                    , directory
+                    , ghc-prim
+                    , hdaemonize
+                    , hspec
+                    , network
+                    , process
+                    , regex-posix
+                    , sqlite
+                    , syb
+                    , tar
+                    , template
+                    , template-haskell
+                    , temporary
+                    , text
+                    , unix
+                    , yaml
 
-  Build-depends:
-    MissingH,
-    aeson,
-    ansi-terminal,
-    base,
-    base64-bytestring,
-    bytestring,
-    datetime,
-    directory,
-    ghc-prim,
-    hdaemonize,
-    hspec,
-    network,
-    process,
-    regex-posix,
-    sqlite,
-    syb,
-    tar,
-    template,
-    template-haskell,
-    temporary,
-    text,
-    unix,
-    yaml
-
+executable sllar-server
+  main-is:          Main.hs
+  hs-source-dirs:   src-exec
   ghc-options:      -Wall -fwarn-tabs -threaded
+  build-depends:    base
+                    , text
+                    , bytestring
+                    , regex-posix
+                    , process
+                    , directory
+                    , template
+                    , sllar-server
+
+
+test-suite tests
+  hs-source-dirs:   spec
+  main-is:          PackageSpec.hs
+  type:             exitcode-stdio-1.0
+  ghc-options:      -Wall
+  build-depends:    base
+                    , bytestring
+                    , sllar-server
+                    , hspec

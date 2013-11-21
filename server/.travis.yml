@@ -1,5 +1,3 @@
 language: haskell
-before_install:
-  - cd server
 notifications:
   email: false

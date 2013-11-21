@@ -1,9 +1,9 @@
-module Server ( start
+module Sllar.Server ( start
               , stop ) where
 
-import Config
-import qualified Package.Import (publish)
-import qualified Package.Export
+import Sllar.Config
+import qualified Sllar.Package.Import (publish)
+import qualified Sllar.Package.Export
 import Paths_sllar_server
 
 -- System
@@ -77,8 +77,8 @@ router request = do
         (html, json, text) = ("text/html", "application/json", "text/plain")
         (bodyIO, respType) =
           case (rtype', path') of
-               (GET,  "/packages") -> (Package.Export.allJson,       json)
-               (POST, "/publish")  -> (Package.Import.publish options',             text)
+               (GET,  "/packages") -> (Sllar.Package.Export.allJson,       json)
+               (POST, "/publish")  -> (Sllar.Package.Import.publish options',             text)
                _ -> (getDataFileName "html/index.html" >>= readFile, html)
     body' <- bodyIO
     return (Response body' respType)

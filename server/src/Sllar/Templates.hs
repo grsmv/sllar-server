@@ -1,8 +1,8 @@
 {-# LANGUAGE QuasiQuotes #-}
 
-module Templates where
+module Sllar.Templates where
 
-import Heredoc
+import Sllar.Heredoc
 
 info, help :: String
 help = [heredoc|

@@ -1,14 +1,14 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Package.Export
+module Sllar.Package.Export
     ( allJson
     , ExposedPackage(..)
     , Version(..)
     ) where
 
 -- sllar
-import Database
+import Sllar.Database
 
 -- system
 import Data.Maybe (fromMaybe)
